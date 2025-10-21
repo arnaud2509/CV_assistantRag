@@ -1,4 +1,3 @@
-# api_rag.py
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -7,12 +6,17 @@ import json
 import requests
 from dotenv import load_dotenv
 
-# --- Imports LangChain ---
+# --- Imports LangChain CORRIGÉS ---
+# 'langchain.chains' est souvent déplacé. Nous allons le laisser si la librairie est moderne,
+# mais s'assurer que toutes les dépendances sont installées.
+# L'import 'RetrievalQA' est standard, mais peut nécessiter la dernière version de 'langchain'.
+
 from langchain_community.vectorstores import Chroma
-from langchain.chains import RetrievalQA
+from langchain.chains import RetrievalQA # LAISSER CET IMPORT
 from langchain.schema import Document
 from langchain.embeddings.base import Embeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.text_splitter import RecursiveCharacterTextSplitter # Ajouté, même si non utilisé, assure la compatibilité
 
 # --------------------------------------------------------------------------
 # ------------------- 1. CONFIGURATION ET LOGIQUE RAG ----------------------
@@ -34,7 +38,7 @@ CHROMA_PERSIST_DIRECTORY = "chroma_db"
 DATA_FILE = "cv_rag.json"
 
 
-# --- Définition de la classe InfomaniakEmbeddings (tirée de rag_app.py) ---
+# --- Définition de la classe InfomaniakEmbeddings ---
 class InfomaniakEmbeddings(Embeddings):
     """Classe d'embeddings personnalisée pour l'API Infomaniak."""
     
@@ -45,6 +49,7 @@ class InfomaniakEmbeddings(Embeddings):
         self.base_url = "https://api.infomaniak.com/2/ai/embedding/create"
 
     def embed_documents(self, texts: list[str]) -> list[list[float]]:
+        # La boucle est coûteuse, mais nécessaire pour l'interface Embeddings
         return [self._embed_text(text) for text in texts]
 
     def embed_query(self, text: str) -> list[float]:
@@ -65,9 +70,8 @@ class InfomaniakEmbeddings(Embeddings):
         
         try:
             response = requests.post(self.base_url, headers=headers, json=payload)
-            response.raise_for_status() # Lève une exception pour les codes d'erreur HTTP
+            response.raise_for_status() 
             data = response.json()
-            # On s'attend à ce que l'embedding soit une liste de floats
             if data and data.get("data") and data["data"].get("embedding"):
                 return data["data"]["embedding"]
             raise ValueError("Réponse API Infomaniak invalide ou incomplète.")
@@ -78,7 +82,6 @@ class InfomaniakEmbeddings(Embeddings):
 def load_documents_and_setup_rag():
     """Charge les documents, configure ChromaDB et le chaîne QA."""
     
-    # Vérification des clés essentielles
     if not GEMINI_API_KEY or not API_KEY:
         raise ValueError("Les clés API (GEMINI_API_KEY ou INFOMANIAK_API_KEY) n'ont pas été configurées. Vérifiez les variables d'environnement.")
 
@@ -91,16 +94,13 @@ def load_documents_and_setup_rag():
     
     # 2. Chargement ou création de la base de données vectorielle (ChromaDB)
     if os.path.exists(CHROMA_PERSIST_DIRECTORY):
-        # Charge la base de données existante (recommandé pour la production)
         vectorstore = Chroma(
             persist_directory=CHROMA_PERSIST_DIRECTORY,
             embedding_function=embedding_function
         )
     else:
-        # Crée la base de données (si elle n'existe pas - lourd au démarrage du serveur)
         print(f"ATTENTION : Le dossier '{CHROMA_PERSIST_DIRECTORY}' n'existe pas. Création des embeddings...")
         
-        # Charger les données du fichier JSON (supposé être une liste de dict {page_content, metadata})
         with open(DATA_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
             documents = [Document(page_content=item['page_content'], metadata=item['metadata']) for item in data]
@@ -110,8 +110,8 @@ def load_documents_and_setup_rag():
             embedding=embedding_function, 
             persist_directory=CHROMA_PERSIST_DIRECTORY
         )
-        vectorstore.persist() # Rend les données persistantes
-        print("Embeddings créés et persistés. Il est conseillé de commiter le dossier chroma_db.")
+        vectorstore.persist() 
+        print("Embeddings créés et persistés.")
 
 
     # 3. Configuration du LLM (Gemini)
@@ -128,12 +128,13 @@ def load_documents_and_setup_rag():
     return qa
 
 # Initialisation globale de la chaîne QA
+# Tenter l'initialisation. Si les clés manquent ou si l'API Infomaniak échoue, 
+# l'erreur sera propagée au point de terminaison de vérification ('/')
 try:
     qa_chain = load_documents_and_setup_rag()
 except Exception as e:
-    # Si le RAG ne peut pas s'initialiser (ex: clé manquante), on lève une erreur critique
     print(f"ERREUR CRITIQUE D'INITIALISATION RAG: {e}")
-    qa_chain = None # Laisse qa_chain à None ou arrête l'application si non récupérable.
+    qa_chain = None 
 
 # --------------------------------------------------------------------------
 # ---------------------------- 2. API FASTAPI ------------------------------
@@ -141,12 +142,10 @@ except Exception as e:
 
 app = FastAPI(title="CV RAG API")
 
-# Configuration CORS : Permet à votre frontend (GitHub Pages) d'accéder à cette API.
-# Mettez l'URL exacte de votre GitHub Page pour plus de sécurité en production : 
-# ex: ["https://arnaud2509.github.io"]
+# Configuration CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Temporaire: Autorise toutes les origines
+    allow_origins=["*"],  # À remplacer par l'URL de votre GitHub Page si le déploiement réussit
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -165,28 +164,28 @@ def read_root():
 
 @app.post("/ask")
 async def ask_rag(query: Query):
-    """Point de terminaison pour interroger le RAG (Récupération et Génération Augmentée)."""
+    """Point de terminaison pour interroger le RAG."""
     if not qa_chain:
-        raise HTTPException(status_code=503, detail="Service RAG indisponible. L'initialisation a échoué.")
+        # Si qa_chain est None, cela signifie que l'initialisation a échoué (étape 1)
+        raise HTTPException(status_code=503, detail="Service RAG indisponible. L'initialisation a échoué. Vérifiez les variables d'environnement sur Render.")
         
     try:
-        # Exécute la chaîne RAG avec la question reçue
+        # Exécute la chaîne RAG
         answer = qa_chain.run(query.question)
         
-        # Retourne la réponse dans un format JSON simple
+        # Retourne la réponse
         return {"answer": answer}
         
     except Exception as e:
-        # Capture les erreurs lors de l'exécution du RAG
         print(f"Erreur lors de la chaîne QA : {e}")
         raise HTTPException(
             status_code=500, 
             detail=f"Erreur interne lors de la génération de la réponse RAG. Détails: {e}"
         )
 
-
+# --------------------------------------------------------------------------
+# ---------------------------- 3. Lancement Local --------------------------
+# --------------------------------------------------------------------------
 if __name__ == "__main__":
     import uvicorn
-    # Assurez-vous d'avoir vos variables d'environnement dans un .env
-    # Lancement : uvicorn api_rag:app --reload --host 0.0.0.0 --port 8000
     uvicorn.run(app, host="0.0.0.0", port=8000)
