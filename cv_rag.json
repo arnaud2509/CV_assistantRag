@@ -1,0 +1,128 @@
+[
+  {
+    "section": "contact",
+    "titre": "Coordonnées",
+    "texte": "Nom: Arnaud Claivaz\nTéléphone: +41 77 266 94 22\nEmail: claivaz.arnaud25@gmail.com\nAdresse: Route des communaux 31, 1800 Vevey",
+    "type": "contact"
+  },
+  {
+    "section": "profil",
+    "titre": "Résumé professionnel",
+    "texte": "Business Analyst specialized in SAP and public finance, with international experience in New York in product management and marketing consulting. Experienced in leading IT and SAP projects with a focus on process optimization and cross-team coordination.",
+    "type": "profil"
+  },
+  {
+    "section": "profil",
+    "titre": "Compétences stratégiques",
+    "texte": "Combines technical expertise and strategic vision to manage projects, improve processes, and deliver value. Interested in applying AI concepts to enhance decision-making and automation in projects.",
+    "type": "profil"
+  },
+  {
+    "section": "formation",
+    "titre": "KUDAN INSTITUTE",
+    "texte": "Japanese language school, 2024.",
+    "date_debut": "2024-01",
+    "date_fin": "2024-12",
+    "type": "formation"
+  },
+  {
+    "section": "formation",
+    "titre": "BACHELOR HEG",
+    "texte": "International Business Management, 2019-2022.",
+    "date_debut": "2019-09",
+    "date_fin": "2022-06",
+    "type": "formation"
+  },
+  {
+    "section": "formation",
+    "titre": "KONKUK UNIVERSITY",
+    "texte": "Student exchange program, 2023.",
+    "date_debut": "2023-01",
+    "date_fin": "2023-12",
+    "type": "formation"
+  },
+  {
+    "section": "experiences",
+    "titre": "Business Analyst - Administration des Finances Valais",
+    "texte": "Managed business requirements and translated them into functional specifications for financial projects. Coordinated SAP implementations, monitored project progress, and ensured alignment with strategic objectives.",
+    "date_debut": "2024-01",
+    "date_fin": "Aujourd'hui",
+    "type": "travail",
+    "competences_associees": ["SAP", "Business Analysis", "Project Management"],
+    "impact": "Optimized financial processes and improved coordination between teams"
+  },
+  {
+    "section": "experiences",
+    "titre": "SAP Project Management",
+    "texte": "Oversaw SAP projects within the Valais cantonal administration, coordinating between technical teams, business units, and external partners to deliver solutions on time.",
+    "type": "travail",
+    "competences_associees": ["SAP", "Project Management"]
+  },
+  {
+    "section": "experiences",
+    "titre": "Change Management & Support",
+    "texte": "Provided change management support and user training to ensure smooth adoption of SAP solutions across departments.",
+    "type": "travail",
+    "competences_associees": ["Change Management", "Training", "User Support"]
+  },
+  {
+    "section": "experiences",
+    "titre": "Sales Business Development - Professionals.Aero",
+    "texte": "Identified new business opportunities, managed client relationships, and supported product development and marketing strategies.",
+    "date_debut": "2022-01",
+    "date_fin": "2023-12",
+    "type": "travail",
+    "competences_associees": ["Business Development", "Marketing"]
+  },
+  {
+    "section": "experiences",
+    "titre": "Product Management - New York Habitat",
+    "texte": "Worked as a freelance consultant in product management, marketing strategy, and digital communication.",
+    "date_debut": "2018-01",
+    "date_fin": "2020-12",
+    "type": "travail",
+    "competences_associees": ["Product Management", "Marketing"]
+  },
+  {
+    "section": "competences",
+    "titre": "Compétences principales",
+    "texte": "Business Analysis & Process Optimization. Project Management – SAP & Public Finance. Marketing Strategy & Digital Communication. Business Development & Market Research.",
+    "type": "competences"
+  },
+  {
+    "section": "technologies",
+    "titre": "Outils et technologies",
+    "texte": "SAP, Python, SQL, Excel, Power BI, Jira, Confluence, Agile/Scrum. Personal experience experimenting with LLMs, RAG, embeddings, and AI APIs in side projects.",
+    "type": "technologies"
+  },
+  {
+    "section": "soft_skills",
+    "titre": "Compétences comportementales et méthodologiques",
+    "texte": "Curious, solution-oriented, excellent communicator, experienced in collaboration across teams and external partners. Interested in AI, learning continuously, and applying best practices in projects.",
+    "type": "soft_skills"
+  },
+  {
+    "section": "langues",
+    "titre": "Langues",
+    "texte": "French, English (C1), German (B2), Japanese (B1).",
+    "type": "langues"
+  },
+  {
+    "section": "vision",
+    "titre": "Vision et objectifs",
+    "texte": "Aim to leverage AI concepts in projects to improve efficiency, support decision-making, and introduce innovation while maintaining compliance, ethical standards, and data sovereignty.",
+    "type": "vision"
+  },
+  {
+    "section": "faq",
+    "titre": "Pourquoi postuler pour le poste IA au SCI ?",
+    "texte": "I am motivated to contribute to the State of Valais' AI strategy, applying my project management skills and personal experience with AI to support impactful initiatives.",
+    "type": "faq"
+  },
+  {
+    "section": "faq",
+    "titre": "Quelles expériences en IA avez-vous ?",
+    "texte": "I have personal experience experimenting with AI projects, LLMs, RAG systems, and embeddings, and I am eager to apply this knowledge to professional projects within the administration.",
+    "type": "faq"
+  }
+]
