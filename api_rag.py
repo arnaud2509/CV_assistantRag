@@ -227,6 +227,8 @@ async def ask_rag(query: Query):
                 response = requests.post(url, headers=headers, json=payload)
                 response.raise_for_status()
                 audio_base64 = base64.b64encode(response.content).decode("utf-8")
+                print("TTS status code:", response.status_code)
+                print("TTS response text:", response.text[:500])  # tronque si c’est long
             except Exception as e:
                 print(f"Erreur TTS ElevenLabs: {e}")
                 audio_base64 = None
