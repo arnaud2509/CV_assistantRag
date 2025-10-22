@@ -39,11 +39,13 @@ body {
 /* === STRUCTURE === */
 #main-app-container {
   width: 100%;
-  max-width: 900px;
+  max-width: 1000px; /* plus large qu’avant (900px → 1000px) */
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-start; /* place le contenu vers le haut */
   gap: 2.5rem;
+  margin-top: 4rem; /* espace depuis le haut de la page */
 }
 
 #spline-wrapper {
@@ -62,6 +64,7 @@ body {
 
 /* === TEXT ZONE === */
 #response-display {
+  margin-top: 1rem; /* légère marge seulement */
   min-height: 100px;
   text-align: center;
   font-size: 2.25rem;
@@ -80,10 +83,11 @@ body {
 /* === INPUT BAR === */
 #input-bar {
   width: 100%;
-  max-width: 650px;
-  margin-top: 2rem;
+  max-width: 800px; /* allongée (650px → 800px) */
+  margin-top: 1.5rem; /* un peu moins d’espace sous le texte */
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 1rem;
 }
 
@@ -127,6 +131,7 @@ body {
   backdrop-filter: blur(4px);
   will-change: transform, opacity;
 }
+
 
 #send-button:hover {
   background-color: rgba(59, 130, 246, 0.1) !important;
