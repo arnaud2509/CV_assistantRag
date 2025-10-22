@@ -1,6 +1,6 @@
 fastapi
 uvicorn[standard]
-langchain
+langchain==0.1.16
 langchain-community 
 langchain-google-genai 
 python-dotenv 
@@ -10,8 +10,8 @@ chromadb
 fastapi
 uvicorn[standard]
 langchain
-langchain-community 
-langchain-core # Ajouté pour la compatibilité
+langchain-commu
+langchain-core 
 langchain-google-genai 
 python-dotenv 
 requests 
