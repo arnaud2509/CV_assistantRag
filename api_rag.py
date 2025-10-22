@@ -210,21 +210,26 @@ async def ask_rag(query: Query):
     try:
         answer_text = qa_chain.run(query.question)
 
-        # --- Génération audio via ElevenLabs ---
+        audio_base64 = None
         if ELEVEN_API_KEY:
             try:
-                audio_bytes = generate(
-                    text=answer_text,
-                    voice="alloy",   # Tu peux changer la voix
-                    model="eleven_multilingual_v1",
-                    stream=False
-                )
-                audio_base64 = base64.b64encode(audio_bytes).decode("utf-8")
+                VOICE_ID = "JBFqnCBsd6RMkjVDRZzb"  # ID de la voix choisie
+                url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}"
+                headers = {
+                    "xi-api-key": ELEVEN_API_KEY,
+                    "Content-Type": "application/json"
+                }
+                payload = {
+                    "text": answer_text,
+                    "model_id": "eleven_multilingual_v2",
+                    "voice_settings": {"stability": 0.75, "similarity_boost": 0.75}
+                }
+                response = requests.post(url, headers=headers, json=payload)
+                response.raise_for_status()
+                audio_base64 = base64.b64encode(response.content).decode("utf-8")
             except Exception as e:
                 print(f"Erreur TTS ElevenLabs: {e}")
                 audio_base64 = None
-        else:
-            audio_base64 = None
 
         return {
             "answer": answer_text,
