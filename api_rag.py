@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import List, Optional
 import os
@@ -7,6 +8,7 @@ import json
 import requests
 from dotenv import load_dotenv
 from pathlib import Path
+from io import BytesIO
 
 # --- LangChain ---
 from langchain_community.vectorstores import Chroma
@@ -16,17 +18,24 @@ from langchain.embeddings.base import Embeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate
 
+# --- ElevenLabs ---
+from elevenlabs import generate, set_api_key
+
 # --------------------------------------------------------------------------
 # ------------------- 1. CONFIGURATION ET LOGIQUE RAG ----------------------
 # --------------------------------------------------------------------------
 
-load_dotenv()  # Charge les variables d'environnement
+load_dotenv()
 
 # Clés API
 API_KEY: Optional[str] = os.environ.get("INFOMANIAK_API_KEY")
 PRODUCT_ID: Optional[str] = os.environ.get("INFOMANIAK_PRODUCT_ID")
 MODEL: str = os.environ.get("INFOMANIAK_EMBEDDING_MODEL", "mini_lm_l12_v2")
 GEMINI_API_KEY: Optional[str] = os.environ.get("GEMINI_API_KEY")
+ELEVENLABS_API_KEY: Optional[str] = os.environ.get("ELEVENLABS_API_KEY")
+
+if ELEVENLABS_API_KEY:
+    set_api_key(ELEVENLABS_API_KEY)
 
 # Chemins
 BASE_DIR = Path(__file__).resolve().parent
@@ -190,6 +199,17 @@ except Exception as e:
     qa_chain = None
     retriever_instance = None
 
+# ----------------- Fonction TTS -----------------
+def text_to_speech(text: str):
+    if not ELEVENLABS_API_KEY:
+        raise ValueError("ELEVENLABS_API_KEY manquante")
+    audio = generate(
+        text=text,
+        voice="alloy",
+        model="eleven_multilingual_v1"
+    )
+    return BytesIO(audio)
+
 # --------------------------------------------------------------------------
 # ---------------------------- 2. API FASTAPI ------------------------------
 # --------------------------------------------------------------------------
@@ -210,7 +230,14 @@ async def ask_rag(query: Query):
         raise HTTPException(status_code=503, detail="Service RAG indisponible")
     try:
         answer = qa_chain.run(query.question)
-        return {"answer": answer}
+
+        # Génération TTS
+        audio_bytes = text_to_speech(answer)
+        audio_bytes.seek(0)
+
+        # Retour sous forme multipart (texte + audio) si nécessaire, ici simplifié pour audio WAV
+        return StreamingResponse(audio_bytes, media_type="audio/wav")
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -228,4 +255,3 @@ async def get_context(query: Query):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
