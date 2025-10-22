@@ -33,7 +33,7 @@ MODEL: str = os.environ.get("INFOMANIAK_EMBEDDING_MODEL", "mini_lm_l12_v2")
 GEMINI_API_KEY: Optional[str] = os.environ.get("GEMINI_API_KEY")
 ELEVEN_API_KEY: Optional[str] = os.environ.get("ELEVEN_API_KEY")
 
-elevenlabs = ElevenLabs(api_key='ELEVEN_API_KEY',)
+elevenlabs = ElevenLabs(api_key=ELEVEN_API_KEY,)
 
 
 # Chemins
