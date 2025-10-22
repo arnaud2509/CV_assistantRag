@@ -1,14 +1,13 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import List, Optional
 import os
 import json
+import base64
 import requests
 from dotenv import load_dotenv
 from pathlib import Path
-from io import BytesIO
 
 # --- LangChain ---
 from langchain_community.vectorstores import Chroma
@@ -18,24 +17,24 @@ from langchain.embeddings.base import Embeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate
 
-# --- ElevenLabs ---
-from elevenlabs import generate, set_api_key
+# --- ElevenLabs TTS ---
+from elevenlabs import generate, set_api_key, voices
 
 # --------------------------------------------------------------------------
 # ------------------- 1. CONFIGURATION ET LOGIQUE RAG ----------------------
 # --------------------------------------------------------------------------
 
-load_dotenv()
+load_dotenv()  # Charge les variables d'environnement
 
 # Clés API
 API_KEY: Optional[str] = os.environ.get("INFOMANIAK_API_KEY")
 PRODUCT_ID: Optional[str] = os.environ.get("INFOMANIAK_PRODUCT_ID")
 MODEL: str = os.environ.get("INFOMANIAK_EMBEDDING_MODEL", "mini_lm_l12_v2")
 GEMINI_API_KEY: Optional[str] = os.environ.get("GEMINI_API_KEY")
-ELEVENLABS_API_KEY: Optional[str] = os.environ.get("ELEVENLABS_API_KEY")
+ELEVEN_API_KEY: Optional[str] = os.environ.get("ELEVEN_API_KEY")
 
-if ELEVENLABS_API_KEY:
-    set_api_key(ELEVENLABS_API_KEY)
+if ELEVEN_API_KEY:
+    set_api_key(ELEVEN_API_KEY)
 
 # Chemins
 BASE_DIR = Path(__file__).resolve().parent
@@ -100,25 +99,21 @@ class InfomaniakEmbeddings(Embeddings):
 # ----------------- Transformation du JSON en documents -----------------
 def flatten_cv_json(cv_json: dict) -> List[Document]:
     docs = []
-
     # Contact
     contact = cv_json.get("contact", {})
     docs.append(Document(page_content=f"Nom: {contact.get('name', '')}", metadata={"section": "contact"}))
     docs.append(Document(page_content=f"Téléphone: {contact.get('phone', '')}", metadata={"section": "contact"}))
     docs.append(Document(page_content=f"Email: {contact.get('email', '')}", metadata={"section": "contact"}))
-
     # Profil
     profile = cv_json.get("profile", {})
     for key in ["resume", "strategic_skills"]:
         text = profile.get(key)
         if text:
             docs.append(Document(page_content=text, metadata={"section": key}))
-
     # Éducation
     for edu in cv_json.get("education", []):
         text = f"{edu.get('institution')} : {edu.get('description')} ({edu.get('date_start')} - {edu.get('date_end')})"
         docs.append(Document(page_content=text, metadata={"section": "education"}))
-
     # Expériences
     for exp in cv_json.get("experiences", []):
         role = exp.get("role", "")
@@ -126,12 +121,10 @@ def flatten_cv_json(cv_json: dict) -> List[Document]:
         desc = exp.get("description", "")
         text = f"{role} chez {org} : {desc}"
         docs.append(Document(page_content=text, metadata={"section": "experience"}))
-
     # Compétences
     for cat, skills in cv_json.get("competences", {}).items():
         text = f"{cat} : {', '.join(skills)}"
         docs.append(Document(page_content=text, metadata={"section": "competences"}))
-
     # FAQ et segments
     for faq in cv_json.get("faq", []):
         if "answer" in faq:
@@ -140,7 +133,6 @@ def flatten_cv_json(cv_json: dict) -> List[Document]:
         elif "answer_segments" in faq:
             text = " ".join(faq["answer_segments"])
             docs.append(Document(page_content=text, metadata={"section": "faq"}))
-
     return docs
 
 # ----------------- Variables globales -----------------
@@ -167,12 +159,9 @@ def load_documents_and_setup_rag() -> RetrievalQA:
             raise FileNotFoundError(f"{DATA_FILE} introuvable")
         with DATA_FILE.open(encoding="utf-8") as f:
             data_raw = json.load(f)
-
         documents = flatten_cv_json(data_raw)
-
         if not documents:
             raise ValueError("Aucun document valide dans le JSON")
-
         vectorstore = Chroma.from_documents(documents, embedding_function, persist_directory=str(CHROMA_PERSIST_DIRECTORY))
         print("Embeddings créés et persistés.")
 
@@ -199,20 +188,10 @@ except Exception as e:
     qa_chain = None
     retriever_instance = None
 
-# ----------------- Fonction TTS -----------------
-def text_to_speech(text: str):
-    if not ELEVENLABS_API_KEY:
-        raise ValueError("ELEVENLABS_API_KEY manquante")
-    audio = generate(
-        text=text,
-        voice="alloy",
-        model="eleven_multilingual_v1"
-    )
-    return BytesIO(audio)
-
 # --------------------------------------------------------------------------
 # ---------------------------- 2. API FASTAPI ------------------------------
 # --------------------------------------------------------------------------
+
 app = FastAPI(title="CV RAG API")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
@@ -229,14 +208,28 @@ async def ask_rag(query: Query):
     if not qa_chain:
         raise HTTPException(status_code=503, detail="Service RAG indisponible")
     try:
-        answer = qa_chain.run(query.question)
+        answer_text = qa_chain.run(query.question)
 
-        # Génération TTS
-        audio_bytes = text_to_speech(answer)
-        audio_bytes.seek(0)
+        # --- Génération audio via ElevenLabs ---
+        if ELEVEN_API_KEY:
+            try:
+                audio_bytes = generate(
+                    text=answer_text,
+                    voice="alloy",   # Tu peux changer la voix
+                    model="eleven_multilingual_v1",
+                    stream=False
+                )
+                audio_base64 = base64.b64encode(audio_bytes).decode("utf-8")
+            except Exception as e:
+                print(f"Erreur TTS ElevenLabs: {e}")
+                audio_base64 = None
+        else:
+            audio_base64 = None
 
-        # Retour sous forme multipart (texte + audio) si nécessaire, ici simplifié pour audio WAV
-        return StreamingResponse(audio_bytes, media_type="audio/wav")
+        return {
+            "answer": answer_text,
+            "audio_base64": audio_base64
+        }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
