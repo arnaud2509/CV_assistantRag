@@ -7,3 +7,13 @@ python-dotenv
 requests 
 pydantic
 chromadb
+fastapi
+uvicorn[standard]
+langchain
+langchain-community 
+langchain-core # Ajouté pour la compatibilité
+langchain-google-genai 
+python-dotenv 
+requests 
+pydantic
+chromadb
