@@ -9,8 +9,7 @@ const canvas3d = document.getElementById('canvas3d');
 let splineApp, currentAudio = null;
 
 // --- CONFIGURATION DE L'API RAG ---
-// ⚠️ IMPORTANT : REMPLACER cette URL par l'URL fournie par Render (ex: https://cv-rag-api.onrender.com)
-const RENDER_API_URL = "https://cv-rag-api.onrender.com"; 
+const RENDER_API_URL = "https://cv-assistantrag.onrender.com"; 
 // **********************************
 
 // === Initialisation Spline (Conserver tel quel) ===
