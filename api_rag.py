@@ -1,3 +1,4 @@
+import tempfile
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -31,23 +32,50 @@ API_KEY: Optional[str] = os.environ.get("INFOMANIAK_API_KEY")
 PRODUCT_ID: Optional[str] = os.environ.get("INFOMANIAK_PRODUCT_ID")
 MODEL: str = os.environ.get("INFOMANIAK_EMBEDDING_MODEL", "mini_lm_l12_v2")
 GEMINI_API_KEY: Optional[str] = os.environ.get("GEMINI_API_KEY")
-# ELEVEN_API_KEY a été supprimé
 
 # Chemins
 BASE_DIR = Path(__file__).resolve().parent
 CHROMA_PERSIST_DIRECTORY = BASE_DIR / "chroma_db"
 DATA_FILE = BASE_DIR / "cv_rag.json"
 
-# --- Configuration Google Cloud TTS ---
+# --- Configuration Google Cloud TTS et Authentification ---
 tts_client: Optional[texttospeech.TextToSpeechClient] = None
-try:
-    # Google Cloud TTS est sensible aux credentials. L'initialisation ici
-    # suppose que l'authentification est gérée par l'environnement (ADC).
-    tts_client = texttospeech.TextToSpeechClient()
-    print("Client Google Cloud TTS initialisé.")
-except Exception as e:
-    tts_client = None
-    print(f"ATTENTION: Échec de l'initialisation du client Google Cloud TTS. (Vérifiez l'authentification gcloud). {e}")
+GCP_CREDENTIALS_FILE: Optional[str] = None
+
+# Gestion de l'authentification Google Cloud via Base64
+credentials_base64 = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_BASE64")
+
+if credentials_base64:
+    try:
+        # 1. Décoder les credentials depuis Base64
+        credentials_json = base64.b64decode(credentials_base64).decode("utf-8")
+        
+        # 2. Écrire les credentials dans un fichier temporaire
+        temp_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
+        temp_file.write(credentials_json)
+        temp_file.close()
+        
+        # 3. Définir la variable d'environnement GOOGLE_APPLICATION_CREDENTIALS
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = temp_file.name
+        GCP_CREDENTIALS_FILE = temp_file.name
+        
+        # 4. Initialiser le client TTS (il trouve automatiquement la clé)
+        tts_client = texttospeech.TextToSpeechClient()
+        print("Client Google Cloud TTS initialisé via GOOGLE_APPLICATION_CREDENTIALS_BASE64.")
+        
+    except Exception as e:
+        tts_client = None
+        print(f"ATTENTION: Échec de l'initialisation du client Google Cloud TTS (Erreur: {e}).")
+
+else:
+    # Si la variable Base64 n'est pas présente, on tente l'initialisation par défaut (utile si l'on est dans un environnement Google Cloud natif)
+    try:
+        tts_client = texttospeech.TextToSpeechClient()
+        print("Client Google Cloud TTS initialisé (Mode par défaut/ADC).")
+    except Exception as e:
+        tts_client = None
+        print(f"ATTENTION: Échec de l'initialisation du client Google Cloud TTS. (Vérifiez l'authentification gcloud). {e}")
+
 
 # Paramètres de la voix Google TTS (Français)
 TTS_VOICE_NAME = "fr-FR-Standard-C" 
@@ -77,7 +105,7 @@ CUSTOM_PROMPT = PromptTemplate(
     input_variables=["context", "question"]
 )
 
-# ----------------- Classe d'embeddings -----------------
+# ----------------- Classe d'embeddings (Infomaniak) -----------------
 class InfomaniakEmbeddings(Embeddings):
     def __init__(self, api_key: str, product_id: str, model: str):
         self.api_key = api_key
@@ -182,7 +210,7 @@ def generate_google_tts(text_to_speak: str) -> Optional[str]:
         print(f"[TTS] Erreur Google Cloud TTS: {e}")
         return None
 
-# ----------------- Variables globales -----------------
+# ----------------- Variables globales et Initialisation RAG -----------------
 qa_chain: Optional[RetrievalQA] = None
 retriever_instance: Optional[Chroma] = None
 
@@ -227,7 +255,7 @@ def load_documents_and_setup_rag() -> RetrievalQA:
     )
     return qa_chain
 
-# Initialisation
+# Initialisation du RAG
 try:
     load_documents_and_setup_rag()
 except Exception as e:
@@ -253,7 +281,12 @@ def read_root():
 @app.post("/ask")
 async def ask_rag(query: Query):
     if not qa_chain:
-        raise HTTPException(status_code=503, detail="Service RAG indisponible")
+        # Tente de réinitialiser le RAG au cas où le premier appel aurait échoué
+        try:
+            load_documents_and_setup_rag()
+        except Exception:
+            raise HTTPException(status_code=503, detail="Service RAG indisponible après tentative de réinitialisation")
+        
     try:
         answer_text = qa_chain.run(query.question)
 
