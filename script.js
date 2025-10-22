@@ -6,7 +6,7 @@ const responseDisplay = document.getElementById('response-display');
 const voiceWave = document.getElementById('voice-wave');
 const canvas3d = document.getElementById('canvas3d');
 
-let splineApp, currentAudio = null;
+let splineApp = null;
 
 // --- CONFIGURATION DE L'API RAG ---
 const RENDER_API_URL = "https://cv-assistantrag.onrender.com";
@@ -57,7 +57,28 @@ function handleError(error, userMessage = "Une erreur est survenue. Veuillez ré
   voiceWave.classList.add('hidden');
 }
 
-// --- FONCTION PRINCIPALE : Appel API et lecture audio ---
+// --- FONCTION PRINCIPALE : Appel à l'API RAG ---
+async function callRagApi(query) {
+  const apiUrl = `${RENDER_API_URL}/ask`;
+  const response = await fetch(apiUrl, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ question: query })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({detail: "Réponse non JSON"}));
+    throw new Error(`Erreur API: ${response.status} - ${errorData.detail || 'Erreur inconnue'}`);
+  }
+
+  const data = await response.json();
+  if (data && data.answer) {
+    return data;
+  }
+  throw new Error("Réponse de l'API incomplète ou manquante.");
+}
+
+// === FONCTION D'ENVOI DE MESSAGE UNIFIÉE ===
 async function sendMessage() {
   const query = userInput.value.trim();
   if (!query) return;
@@ -67,44 +88,43 @@ async function sendMessage() {
   showLoading();
   userInput.value = '';
 
-  try {
-    // 1. APPEL AU BACKEND
-    const response = await fetch(`${RENDER_API_URL}/ask`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question: query })
-    });
+  let currentAudio = null;
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({detail: "Réponse non JSON"}));
-      throw new Error(`Erreur API: ${response.status} - ${errorData.detail || 'Erreur inconnue'}`);
+  try {
+    const { answer, audio_base64 } = await callRagApi(query);
+
+    // --- Affichage texte ---
+    const typingPromise = typeWriterEffect(answer);
+
+    // --- Lecture audio si présent ---
+    let audioPlayPromise = Promise.resolve();
+    if (audio_base64) {
+      const audioBlob = new Blob([Uint8Array.from(atob(audio_base64), c => c.charCodeAt(0))], { type: 'audio/mp3' });
+      const audioUrl = URL.createObjectURL(audioBlob);
+      currentAudio = new Audio(audioUrl);
+
+      audioPlayPromise = new Promise(resolve => {
+        voiceWave.classList.remove('hidden');
+        currentAudio.onended = () => {
+          voiceWave.classList.add('hidden');
+          URL.revokeObjectURL(audioUrl);
+          resolve();
+        };
+        currentAudio.play().catch(e => {
+          console.error("Échec lecture audio:", e);
+          voiceWave.classList.add('hidden');
+          resolve();
+        });
+      });
     }
 
-    // 2. Récupération du Blob audio
-    const audioBlob = await response.blob();
-    const audioUrl = URL.createObjectURL(audioBlob);
-    const audio = new Audio(audioUrl);
+    // --- Attendre texte + audio ---
+    await Promise.all([typingPromise, audioPlayPromise]);
 
-    // 3. Typing effect et lecture audio en parallèle
-    voiceWave.classList.remove('hidden');
-    const typingPromise = typeWriterEffect("..."); // Placeholder texte si tu veux afficher un "..." pendant lecture
-    const audioPromise = new Promise(resolve => {
-      audio.onended = () => {
-        voiceWave.classList.add('hidden');
-        URL.revokeObjectURL(audioUrl);
-        resolve();
-      };
-      audio.play().catch(e => {
-        console.error("Erreur lecture audio :", e);
-        voiceWave.classList.add('hidden');
-        resolve();
-      });
-    });
-
-    await Promise.all([typingPromise, audioPromise]);
+    if (splineApp) console.log("Interaction Spline possible :", query);
 
   } catch (err) {
-    handleError(err, "Échec de la communication avec l'API RAG. Vérifiez la console pour les détails.");
+    handleError(err, "Échec de la communication avec l'API RAG. Vérifiez la console.");
   } finally {
     sendButton.disabled = false;
     userInput.disabled = false;
@@ -119,8 +139,5 @@ function hideLoading() {
   }
 }
 
-// Expose sendMessage au scope global
 window.sendMessage = sendMessage;
-
-console.log("Canvas trouvé :", canvas3d);
 window.onload = () => userInput.focus();
