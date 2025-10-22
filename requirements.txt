@@ -1,19 +1,17 @@
+# Framework et serveur
 fastapi
 uvicorn[standard]
+
+# LangChain & intégrations
 langchain==0.1.16
-langchain-community 
-langchain-google-genai 
-python-dotenv 
-requests 
-pydantic
+langchain-community==0.0.29
+langchain-core==0.1.52
+langchain-google-genai
+
+# Vector Store & embeddings
 chromadb
-fastapi
-uvicorn[standard]
-langchain
-langchain-commu
-langchain-core 
-langchain-google-genai 
-python-dotenv 
-requests 
+
+# Utilitaires
+python-dotenv
+requests
 pydantic
-chromadb
