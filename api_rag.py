@@ -1,192 +1,230 @@
-# api_rag.py
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import List, Optional
 import os
 import json
 import requests
 from dotenv import load_dotenv
+from pathlib import Path
 
-# --- Imports LangChain ---
+# --- LangChain ---
 from langchain_community.vectorstores import Chroma
 from langchain.chains import RetrievalQA
 from langchain.schema import Document
 from langchain.embeddings.base import Embeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.prompts import PromptTemplate
 
 # --------------------------------------------------------------------------
 # ------------------- 1. CONFIGURATION ET LOGIQUE RAG ----------------------
 # --------------------------------------------------------------------------
 
-# Charge les variables d'environnement (nécessaire en local, Render les injectera directement)
-load_dotenv() 
+load_dotenv()  # Charge les variables d'environnement
 
-# Clés
-API_KEY = os.environ.get("INFOMANIAK_API_KEY") 
-PRODUCT_ID = os.environ.get("INFOMANIAK_PRODUCT_ID")
-MODEL = os.environ.get("INFOMANIAK_EMBEDDING_MODEL", "mini_lm_l12_v2")
+# Clés API
+API_KEY: Optional[str] = os.environ.get("INFOMANIAK_API_KEY")
+PRODUCT_ID: Optional[str] = os.environ.get("INFOMANIAK_PRODUCT_ID")
+MODEL: str = os.environ.get("INFOMANIAK_EMBEDDING_MODEL", "mini_lm_l12_v2")
+GEMINI_API_KEY: Optional[str] = os.environ.get("GEMINI_API_KEY")
 
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+# Chemins
+BASE_DIR = Path(__file__).resolve().parent
+CHROMA_PERSIST_DIRECTORY = BASE_DIR / "chroma_db"
+DATA_FILE = BASE_DIR / "cv_rag.json"
 
-# Chemin de la BDD vectorielle persistante
-CHROMA_PERSIST_DIRECTORY = "chroma_db"
-# Fichier de données source
-DATA_FILE = "cv_rag.json"
+# Prompt personnalisé
+SYSTEM_PROMPT = """
+Tu es l'avatar IA d'Arnaud, Business Analyst spécialisé en SAP et finances publiques, avec expérience internationale.
+Tu réponds aux questions sur son profil, son CV, ses compétences et ses expériences. 
+Tu peux interpréter et compléter les réponses si le contexte le permet.
+Si l'utilisateur demande nom, email, téléphone, tu dois fournir l'information immédiatement.
+Sois confiant, engageant et flexible.
+"""
 
+CUSTOM_PROMPT_TEMPLATE = SYSTEM_PROMPT + """
+----------------
+CONTEXTE DE RÉFÉRENCE: {context}
+----------------
+QUESTION DE L'UTILISATEUR: {question}
 
-# --- Définition de la classe InfomaniakEmbeddings (tirée de rag_app.py) ---
+Réponse:
+"""
+
+CUSTOM_PROMPT = PromptTemplate(
+    template=CUSTOM_PROMPT_TEMPLATE,
+    input_variables=["context", "question"]
+)
+
+# ----------------- Classe d'embeddings -----------------
 class InfomaniakEmbeddings(Embeddings):
-    """Classe d'embeddings personnalisée pour l'API Infomaniak."""
-    
     def __init__(self, api_key: str, product_id: str, model: str):
         self.api_key = api_key
         self.product_id = product_id
         self.model = model
-        self.base_url = "https://api.infomaniak.com/2/ai/embedding/create"
+        self.base_url = f"https://api.infomaniak.com/1/ai/{self.product_id}/openai/v1/embeddings"
 
-    def embed_documents(self, texts: list[str]) -> list[list[float]]:
+    def embed_documents(self, texts: List[str]) -> List[List[float]]:
         return [self._embed_text(text) for text in texts]
 
-    def embed_query(self, text: str) -> list[float]:
+    def embed_query(self, text: str) -> List[float]:
         return self._embed_text(text)
 
-    def _embed_text(self, text: str) -> list[float]:
-        """Appel réel à l'API Infomaniak."""
+    def _embed_text(self, text: str) -> List[float]:
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
             "Accept": "application/json",
-            "ProductId": self.product_id
         }
-        payload = {
-            "model": self.model,
-            "input": text
-        }
-        
+        payload = {"input": text, "model": self.model}
         try:
             response = requests.post(self.base_url, headers=headers, json=payload)
-            response.raise_for_status() # Lève une exception pour les codes d'erreur HTTP
+            response.raise_for_status()
             data = response.json()
-            # On s'attend à ce que l'embedding soit une liste de floats
-            if data and data.get("data") and data["data"].get("embedding"):
-                return data["data"]["embedding"]
-            raise ValueError("Réponse API Infomaniak invalide ou incomplète.")
+            if "data" in data and isinstance(data["data"], list) and len(data["data"]) > 0:
+                if "embedding" in data["data"][0]:
+                    return data["data"][0]["embedding"]
+            raise ValueError(f"Réponse API invalide: {json.dumps(data, indent=2)}")
         except requests.exceptions.RequestException as e:
-            raise RuntimeError(f"Erreur lors de l'appel à l'API Infomaniak: {e}")
+            raise RuntimeError(f"Erreur API Infomaniak: {e}")
 
+# ----------------- Transformation du JSON en documents -----------------
+def flatten_cv_json(cv_json: dict) -> List[Document]:
+    docs = []
 
-def load_documents_and_setup_rag():
-    """Charge les documents, configure ChromaDB et le chaîne QA."""
-    
-    # Vérification des clés essentielles
-    if not GEMINI_API_KEY or not API_KEY:
-        raise ValueError("Les clés API (GEMINI_API_KEY ou INFOMANIAK_API_KEY) n'ont pas été configurées. Vérifiez les variables d'environnement.")
+    # Contact
+    contact = cv_json.get("contact", {})
+    docs.append(Document(page_content=f"Nom: {contact.get('name', '')}", metadata={"section": "contact"}))
+    docs.append(Document(page_content=f"Téléphone: {contact.get('phone', '')}", metadata={"section": "contact"}))
+    docs.append(Document(page_content=f"Email: {contact.get('email', '')}", metadata={"section": "contact"}))
 
-    # 1. Configuration des Embeddings
-    embedding_function = InfomaniakEmbeddings(
-        api_key=API_KEY, 
-        product_id=PRODUCT_ID, 
-        model=MODEL
-    )
-    
-    # 2. Chargement ou création de la base de données vectorielle (ChromaDB)
-    if os.path.exists(CHROMA_PERSIST_DIRECTORY):
-        # Charge la base de données existante (recommandé pour la production)
-        vectorstore = Chroma(
-            persist_directory=CHROMA_PERSIST_DIRECTORY,
-            embedding_function=embedding_function
-        )
+    # Profil
+    profile = cv_json.get("profile", {})
+    for key in ["resume", "strategic_skills"]:
+        text = profile.get(key)
+        if text:
+            docs.append(Document(page_content=text, metadata={"section": key}))
+
+    # Éducation
+    for edu in cv_json.get("education", []):
+        text = f"{edu.get('institution')} : {edu.get('description')} ({edu.get('date_start')} - {edu.get('date_end')})"
+        docs.append(Document(page_content=text, metadata={"section": "education"}))
+
+    # Expériences
+    for exp in cv_json.get("experiences", []):
+        role = exp.get("role", "")
+        org = exp.get("organization", "")
+        desc = exp.get("description", "")
+        text = f"{role} chez {org} : {desc}"
+        docs.append(Document(page_content=text, metadata={"section": "experience"}))
+
+    # Compétences
+    for cat, skills in cv_json.get("competences", {}).items():
+        text = f"{cat} : {', '.join(skills)}"
+        docs.append(Document(page_content=text, metadata={"section": "competences"}))
+
+    # FAQ et segments
+    for faq in cv_json.get("faq", []):
+        if "answer" in faq:
+            text = f"Q: {faq.get('question', '')} A: {faq.get('answer', '')}"
+            docs.append(Document(page_content=text, metadata={"section": "faq"}))
+        elif "answer_segments" in faq:
+            text = " ".join(faq["answer_segments"])
+            docs.append(Document(page_content=text, metadata={"section": "faq"}))
+
+    return docs
+
+# ----------------- Variables globales -----------------
+qa_chain: Optional[RetrievalQA] = None
+retriever_instance: Optional[Chroma] = None
+
+def load_documents_and_setup_rag() -> RetrievalQA:
+    global qa_chain, retriever_instance
+
+    # Vérification des clés
+    missing_keys = [k for k, v in [("GEMINI_API_KEY", GEMINI_API_KEY),
+                                   ("INFOMANIAK_API_KEY", API_KEY),
+                                   ("INFOMANIAK_PRODUCT_ID", PRODUCT_ID)] if not v]
+    if missing_keys:
+        raise ValueError(f"Clés API manquantes: {', '.join(missing_keys)}")
+
+    embedding_function = InfomaniakEmbeddings(API_KEY, PRODUCT_ID, MODEL)
+
+    # Vectorstore
+    if CHROMA_PERSIST_DIRECTORY.exists():
+        vectorstore = Chroma(persist_directory=str(CHROMA_PERSIST_DIRECTORY), embedding_function=embedding_function)
     else:
-        # Crée la base de données (si elle n'existe pas - lourd au démarrage du serveur)
-        print(f"ATTENTION : Le dossier '{CHROMA_PERSIST_DIRECTORY}' n'existe pas. Création des embeddings...")
-        
-        # Charger les données du fichier JSON (supposé être une liste de dict {page_content, metadata})
-        with open(DATA_FILE, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            documents = [Document(page_content=item['page_content'], metadata=item['metadata']) for item in data]
-        
-        vectorstore = Chroma.from_documents(
-            documents=documents, 
-            embedding=embedding_function, 
-            persist_directory=CHROMA_PERSIST_DIRECTORY
-        )
-        vectorstore.persist() # Rend les données persistantes
-        print("Embeddings créés et persistés. Il est conseillé de commiter le dossier chroma_db.")
+        if not DATA_FILE.exists():
+            raise FileNotFoundError(f"{DATA_FILE} introuvable")
+        with DATA_FILE.open(encoding="utf-8") as f:
+            data_raw = json.load(f)
 
+        documents = flatten_cv_json(data_raw)
 
-    # 3. Configuration du LLM (Gemini)
-    llm = ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash",
-        temperature=0,
-        api_key=GEMINI_API_KEY 
+        if not documents:
+            raise ValueError("Aucun document valide dans le JSON")
+
+        vectorstore = Chroma.from_documents(documents, embedding_function, persist_directory=str(CHROMA_PERSIST_DIRECTORY))
+        print("Embeddings créés et persistés.")
+
+    # Retriever par similarité
+    retriever_instance = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 3})
+
+    # LLM
+    llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.7, api_key=GEMINI_API_KEY)
+
+    # QA Chain
+    qa_chain = RetrievalQA.from_chain_type(
+        llm=llm,
+        retriever=retriever_instance,
+        chain_type="stuff",
+        chain_type_kwargs={"prompt": CUSTOM_PROMPT}
     )
+    return qa_chain
 
-    # 4. Création de la chaîne RAG
-    retriever = vectorstore.as_retriever()
-    qa = RetrievalQA.from_chain_type(llm=llm, retriever=retriever, chain_type="stuff")
-    
-    return qa
-
-# Initialisation globale de la chaîne QA
+# Initialisation
 try:
-    qa_chain = load_documents_and_setup_rag()
+    load_documents_and_setup_rag()
 except Exception as e:
-    # Si le RAG ne peut pas s'initialiser (ex: clé manquante), on lève une erreur critique
-    print(f"ERREUR CRITIQUE D'INITIALISATION RAG: {e}")
-    qa_chain = None # Laisse qa_chain à None ou arrête l'application si non récupérable.
+    print(f"ERREUR INITIALISATION RAG: {e}")
+    qa_chain = None
+    retriever_instance = None
 
 # --------------------------------------------------------------------------
 # ---------------------------- 2. API FASTAPI ------------------------------
 # --------------------------------------------------------------------------
-
 app = FastAPI(title="CV RAG API")
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
-# Configuration CORS : Permet à votre frontend (GitHub Pages) d'accéder à cette API.
-# Mettez l'URL exacte de votre GitHub Page pour plus de sécurité en production : 
-# ex: ["https://arnaud2509.github.io"]
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Temporaire: Autorise toutes les origines
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Modèle de données pour la requête POST
 class Query(BaseModel):
     question: str
 
 @app.get("/")
 def read_root():
-    """Point de terminaison de vérification simple."""
-    status = "OK" if qa_chain else "ERREUR: RAG non initialisé. Vérifiez les logs/clés API."
-    return {"status": status}
-
+    status = "OK" if qa_chain else "ERREUR: RAG non initialisé"
+    return {"status": status, "message": "API RAG pour le CV interactif d'Arnaud.", "debug_info": "✅ Endpoints /context et /ask (POST) disponibles"}
 
 @app.post("/ask")
 async def ask_rag(query: Query):
-    """Point de terminaison pour interroger le RAG (Récupération et Génération Augmentée)."""
     if not qa_chain:
-        raise HTTPException(status_code=503, detail="Service RAG indisponible. L'initialisation a échoué.")
-        
+        raise HTTPException(status_code=503, detail="Service RAG indisponible")
     try:
-        # Exécute la chaîne RAG avec la question reçue
         answer = qa_chain.run(query.question)
-        
-        # Retourne la réponse dans un format JSON simple
         return {"answer": answer}
-        
     except Exception as e:
-        # Capture les erreurs lors de l'exécution du RAG
-        print(f"Erreur lors de la chaîne QA : {e}")
-        raise HTTPException(
-            status_code=500, 
-            detail=f"Erreur interne lors de la génération de la réponse RAG. Détails: {e}"
-        )
+        raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/context")
+async def get_context(query: Query):
+    if not retriever_instance:
+        raise HTTPException(status_code=503, detail="Retriever indisponible")
+    try:
+        docs = retriever_instance.get_relevant_documents(query.question)
+        results = [{"page_content": doc.page_content, "metadata": doc.metadata} for doc in docs]
+        return {"retrieved_documents": results, "query": query.question}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn
-    # Assurez-vous d'avoir vos variables d'environnement dans un .env
-    # Lancement : uvicorn api_rag:app --reload --host 0.0.0.0 --port 8000
     uvicorn.run(app, host="0.0.0.0", port=8000)

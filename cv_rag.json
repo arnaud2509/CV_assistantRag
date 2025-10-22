@@ -1,128 +1,130 @@
-[
-  {
-    "section": "contact",
-    "titre": "Coordonnées",
-    "texte": "Nom: Arnaud Claivaz\nTéléphone: +41 77 266 94 22\nEmail: claivaz.arnaud25@gmail.com\nAdresse: Route des communaux 31, 1800 Vevey",
-    "type": "contact"
+{
+  "type": "user_profile_rag",
+  "meta": {
+    "source": "self_profile",
+    "last_updated": "2025-10-21",
+    "tags": [
+      "profil_professionnel",
+      "experiences",
+      "competences",
+      "technologies",
+      "soft_skills",
+      "IA",
+      "RAG",
+      "vision",
+      "FAQ"
+    ],
+    "context_sufficiency": "complet pour RAG",
+    "confidence_level": "high"
   },
-  {
-    "section": "profil",
-    "titre": "Résumé professionnel",
-    "texte": "Business Analyst specialized in SAP and public finance, with international experience in New York in product management and marketing consulting. Experienced in leading IT and SAP projects with a focus on process optimization and cross-team coordination.",
-    "type": "profil"
+  "contact": {
+    "name": "Arnaud Claivaz",
+    "phone": "+41 77 266 94 22",
+    "email": "claivaz.arnaud25@gmail.com",
+    "address": "Route des communaux 31, 1800 Vevey"
   },
-  {
-    "section": "profil",
-    "titre": "Compétences stratégiques",
-    "texte": "Combines technical expertise and strategic vision to manage projects, improve processes, and deliver value. Interested in applying AI concepts to enhance decision-making and automation in projects.",
-    "type": "profil"
+  "profile": {
+    "resume": "Business Analyst spécialisé en SAP et finances publiques, avec expérience internationale à New York en gestion de produit et conseil marketing. Expérimenté dans la gestion de projets informatiques et SAP, avec un accent sur l'optimisation des processus et la coordination inter-équipes.",
+    "strategic_skills": "Allie expertise technique et vision stratégique pour gérer des projets, améliorer les processus et générer de la valeur. Intéressé par l'application de concepts d'IA pour renforcer la prise de décision et l'automatisation des projets.",
+    "values": ["curiosité", "innovation", "apprentissage continu", "indépendance", "efficacité"]
   },
-  {
-    "section": "formation",
-    "titre": "KUDAN INSTITUTE",
-    "texte": "Japanese language school, 2024.",
-    "date_debut": "2024-01",
-    "date_fin": "2024-12",
-    "type": "formation"
+  "education": [
+    {
+      "institution": "KUDAN INSTITUTE",
+      "description": "École de langue japonaise",
+      "date_start": "2024-01",
+      "date_end": "2024-12"
+    },
+    {
+      "institution": "BACHELOR HEG",
+      "description": "International Business Management",
+      "date_start": "2019-09",
+      "date_end": "2022-06"
+    },
+    {
+      "institution": "KONKUK UNIVERSITY",
+      "description": "Programme d'échange étudiant",
+      "date_start": "2023-01",
+      "date_end": "2023-12"
+    }
+  ],
+  "experiences": [
+    {
+      "role": "Business Analyst",
+      "organization": "Administration des Finances Valais",
+      "date_start": "2024-01",
+      "date_end": "Aujourd'hui",
+      "description": "Gestion des besoins métiers et traduction en spécifications fonctionnelles pour les projets financiers. Coordination des implémentations SAP, suivi de l’avancement des projets et alignement avec les objectifs stratégiques.",
+      "competences_associees": ["SAP", "Business Analysis", "Project Management"],
+      "impact": "Optimisation des processus financiers et amélioration de la coordination entre équipes."
+    },
+    {
+      "role": "SAP Project Management",
+      "organization": "Administration cantonale valaisanne",
+      "description": "Supervision de projets SAP, coordination entre équipes techniques, métiers et partenaires externes pour assurer la livraison dans les délais.",
+      "competences_associees": ["SAP", "Project Management"]
+    },
+    {
+      "role": "Change Management & Support",
+      "description": "Accompagnement au changement et formation des utilisateurs pour assurer l’adoption fluide des solutions SAP.",
+      "competences_associees": ["Change Management", "Training", "User Support"]
+    },
+    {
+      "role": "Sales Business Development",
+      "organization": "Professionals.Aero",
+      "date_start": "2022-01",
+      "date_end": "2023-12",
+      "description": "Identification de nouvelles opportunités d’affaires, gestion de la relation client et soutien au développement produit et aux stratégies marketing.",
+      "competences_associees": ["Business Development", "Marketing"]
+    },
+    {
+      "role": "Product Management Consultant",
+      "organization": "New York Habitat",
+      "date_start": "2018-01",
+      "date_end": "2020-12",
+      "description": "Gestion de produit, stratégie marketing et communication digitale en tant que consultant indépendant.",
+      "competences_associees": ["Product Management", "Marketing"]
+    }
+  ],
+  "competences": {
+    "technical": ["SAP", "Python", "SQL", "Excel", "Power BI", "Jira", "Confluence", "Agile/Scrum"],
+    "business": ["Business Analysis", "Optimisation des processus", "Gestion de projet", "Stratégie marketing", "Développement commercial", "Étude de marché"],
+    "IA": ["LLM", "RAG", "embeddings", "API d'IA expérimentales"],
+    "soft_skills": ["curiosité", "orientation solutions", "communication", "collaboration inter-équipes", "apprentissage continu", "gestion du changement"]
   },
-  {
-    "section": "formation",
-    "titre": "BACHELOR HEG",
-    "texte": "International Business Management, 2019-2022.",
-    "date_debut": "2019-09",
-    "date_fin": "2022-06",
-    "type": "formation"
+  "languages": [
+    {"langue": "Français", "niveau": "natif"},
+    {"langue": "Anglais", "niveau": "C1"},
+    {"langue": "Allemand", "niveau": "B2"},
+    {"langue": "Japonais", "niveau": "B1"}
+  ],
+  "vision": {
+    "objectives": "Appliquer l'IA pour améliorer l’efficacité, soutenir la prise de décision et introduire l’innovation tout en respectant l’éthique et la souveraineté des données."
   },
-  {
-    "section": "formation",
-    "titre": "KONKUK UNIVERSITY",
-    "texte": "Student exchange program, 2023.",
-    "date_debut": "2023-01",
-    "date_fin": "2023-12",
-    "type": "formation"
-  },
-  {
-    "section": "experiences",
-    "titre": "Business Analyst - Administration des Finances Valais",
-    "texte": "Managed business requirements and translated them into functional specifications for financial projects. Coordinated SAP implementations, monitored project progress, and ensured alignment with strategic objectives.",
-    "date_debut": "2024-01",
-    "date_fin": "Aujourd'hui",
-    "type": "travail",
-    "competences_associees": ["SAP", "Business Analysis", "Project Management"],
-    "impact": "Optimized financial processes and improved coordination between teams"
-  },
-  {
-    "section": "experiences",
-    "titre": "SAP Project Management",
-    "texte": "Oversaw SAP projects within the Valais cantonal administration, coordinating between technical teams, business units, and external partners to deliver solutions on time.",
-    "type": "travail",
-    "competences_associees": ["SAP", "Project Management"]
-  },
-  {
-    "section": "experiences",
-    "titre": "Change Management & Support",
-    "texte": "Provided change management support and user training to ensure smooth adoption of SAP solutions across departments.",
-    "type": "travail",
-    "competences_associees": ["Change Management", "Training", "User Support"]
-  },
-  {
-    "section": "experiences",
-    "titre": "Sales Business Development - Professionals.Aero",
-    "texte": "Identified new business opportunities, managed client relationships, and supported product development and marketing strategies.",
-    "date_debut": "2022-01",
-    "date_fin": "2023-12",
-    "type": "travail",
-    "competences_associees": ["Business Development", "Marketing"]
-  },
-  {
-    "section": "experiences",
-    "titre": "Product Management - New York Habitat",
-    "texte": "Worked as a freelance consultant in product management, marketing strategy, and digital communication.",
-    "date_debut": "2018-01",
-    "date_fin": "2020-12",
-    "type": "travail",
-    "competences_associees": ["Product Management", "Marketing"]
-  },
-  {
-    "section": "competences",
-    "titre": "Compétences principales",
-    "texte": "Business Analysis & Process Optimization. Project Management – SAP & Public Finance. Marketing Strategy & Digital Communication. Business Development & Market Research.",
-    "type": "competences"
-  },
-  {
-    "section": "technologies",
-    "titre": "Outils et technologies",
-    "texte": "SAP, Python, SQL, Excel, Power BI, Jira, Confluence, Agile/Scrum. Personal experience experimenting with LLMs, RAG, embeddings, and AI APIs in side projects.",
-    "type": "technologies"
-  },
-  {
-    "section": "soft_skills",
-    "titre": "Compétences comportementales et méthodologiques",
-    "texte": "Curious, solution-oriented, excellent communicator, experienced in collaboration across teams and external partners. Interested in AI, learning continuously, and applying best practices in projects.",
-    "type": "soft_skills"
-  },
-  {
-    "section": "langues",
-    "titre": "Langues",
-    "texte": "French, English (C1), German (B2), Japanese (B1).",
-    "type": "langues"
-  },
-  {
-    "section": "vision",
-    "titre": "Vision et objectifs",
-    "texte": "Aim to leverage AI concepts in projects to improve efficiency, support decision-making, and introduce innovation while maintaining compliance, ethical standards, and data sovereignty.",
-    "type": "vision"
-  },
-  {
-    "section": "faq",
-    "titre": "Pourquoi postuler pour le poste IA au SCI ?",
-    "texte": "I am motivated to contribute to the State of Valais' AI strategy, applying my project management skills and personal experience with AI to support impactful initiatives.",
-    "type": "faq"
-  },
-  {
-    "section": "faq",
-    "titre": "Quelles expériences en IA avez-vous ?",
-    "texte": "I have personal experience experimenting with AI projects, LLMs, RAG systems, and embeddings, and I am eager to apply this knowledge to professional projects within the administration.",
-    "type": "faq"
-  }
-]
+  "faq": [
+    {
+      "topic": "Motivation",
+      "content": "Motivé à contribuer à la stratégie d’IA de l’État du Valais, en appliquant mes compétences en gestion de projet et mon expérience personnelle avec l’IA pour soutenir des initiatives à fort impact."
+    },
+    {
+      "topic": "Expérience IA",
+      "content": "Projets personnels avec LLM, systèmes RAG et embeddings. Désireux d’appliquer ces connaissances à des projets professionnels."
+    },
+    {
+      "topic": "Présentation",
+      "content": "Je suis Arnaud Claivaz, Business Analyst spécialisé en SAP et finances publiques, avec une expérience internationale à New York et passion pour l’IA."
+    },
+    {
+      "topic": "Intérêt poste",
+      "content": "L’opportunité d’appliquer mes compétences en gestion de projet, SAP et IA, et de contribuer à des initiatives à fort impact."
+    },
+    {
+      "topic": "Soft skills & leadership",
+      "content": "Curiosité, orientation solutions, communication efficace, collaboration inter-équipes et capacité à gérer la pression."
+    },
+    {
+      "topic": "Hobbies & passions",
+      "content": "Lecture, voyages, apprentissage des langues, projets personnels en IA et technologie, sport."
+    }
+  ]
+}

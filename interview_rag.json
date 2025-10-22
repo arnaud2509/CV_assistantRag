@@ -1,0 +1,297 @@
+{
+  "type": "interview_rag_full",
+  "meta": {
+    "source": "self_profile",
+    "last_updated": "2025-10-21",
+    "tags": ["entretien", "questions_reponses_segmented", "RAG", "profil_professionnel"]
+  },
+  "faq_segmented": [
+    {
+      "question": "Pouvez-vous vous présenter ?",
+      "answer_segments": [
+        "Je suis Arnaud Claivaz, Business Analyst spécialisé en SAP et finances publiques.",
+        "J’ai une expérience internationale à New York en gestion de produit et marketing.",
+        "Je suis passionné par l’IA et l’optimisation des processus.",
+        "Je combine expertise technique et vision stratégique."
+      ]
+    },
+    {
+      "question": "Que savez-vous de nous ?",
+      "answer_segments": [
+        "Votre organisation est engagée dans l’innovation et la transformation numérique.",
+        "Vous appliquez l’IA pour améliorer l’efficacité et soutenir la prise de décision.",
+        "Votre approche correspond à mes valeurs et ambitions professionnelles."
+      ]
+    },
+    {
+      "question": "Qu’est-ce qui a suscité votre intérêt dans cette offre d’emploi ?",
+      "answer_segments": [
+        "L’opportunité d’appliquer mes compétences en gestion de projet, SAP et IA.",
+        "Contribuer à des initiatives à fort impact.",
+        "Participer à la transformation digitale de l’organisation."
+      ]
+    },
+    {
+      "question": "Pourquoi souhaitez-vous travailler avec nous ?",
+      "answer_segments": [
+        "Votre approche innovante et votre engagement dans l’IA correspondent à mes valeurs.",
+        "Je souhaite apporter mes compétences pour générer de la valeur et améliorer les processus.",
+        "Travailler avec vous me permettrait de relever de nouveaux défis stimulants."
+      ]
+    },
+    {
+      "question": "Pourquoi souhaitez-vous quitter votre poste actuel ?",
+      "answer_segments": [
+        "Je cherche à relever de nouveaux défis professionnels.",
+        "Je veux m’impliquer dans des projets intégrant davantage l’IA et l’innovation digitale.",
+        "Je souhaite aligner mes missions avec mes aspirations actuelles."
+      ]
+    },
+    {
+      "question": "Que pouvez-vous dire sur votre ancien employeur ?",
+      "answer_segments": [
+        "Mon ancien employeur offre un environnement structuré et des projets intéressants.",
+        "J’en garde une expérience solide en gestion de projets SAP et coordination inter-équipes."
+      ]
+    },
+    {
+      "question": "Où avez-vous postulé ?",
+      "answer_segments": [
+        "Je me concentre sur des postes qui combinent gestion de projet, SAP et initiatives d’IA dans des organisations innovantes et engagées."
+      ]
+    },
+    {
+      "question": "Pourquoi êtes-vous le candidat idéal ?",
+      "answer_segments": [
+        "Mon expérience en SAP, business analysis et gestion de projets est solide.",
+        "Je suis passionné par l’IA et l’innovation.",
+        "Je combine expertise technique et vision stratégique.",
+        "Je m’adapte rapidement aux nouveaux environnements."
+      ]
+    },
+    {
+      "question": "Comment expliquez-vous ce trou dans votre parcours ?",
+      "answer_segments": [
+        "Durant cette période, j’ai développé mes compétences en IA, LLM et RAG à travers des projets personnels.",
+        "Cela a consolidé mon profil technique et stratégique."
+      ]
+    },
+    {
+      "question": "Parlez-moi d’une situation où…",
+      "answer_segments": [
+        "Dans un projet SAP, j’ai coordonné plusieurs équipes pour intégrer un nouveau module financier.",
+        "J’ai assuré la planification et la communication proactive.",
+        "Le projet a été livré à temps et a amélioré les processus."
+      ]
+    },
+    {
+      "question": "Racontez-moi un projet professionnel dont vous êtes particulièrement fier.",
+      "answer_segments": [
+        "La mise en place d’un projet SAP pour l’administration cantonale valaisanne.",
+        "Optimisation des processus financiers et renforcement de la coordination inter-équipes.",
+        "Amélioration significative de la transparence et de l’efficacité du reporting."
+      ]
+    },
+    {
+      "question": "Quels résultats avez-vous obtenus dans vos précédentes expériences ?",
+      "answer_segments": [
+        "Optimisation des processus SAP.",
+        "Meilleure coordination inter-départementale.",
+        "Adoption réussie des nouvelles solutions.",
+        "Impact positif sur la productivité et la qualité du reporting."
+      ]
+    },
+    {
+      "question": "Comment organisez-vous votre prospection commerciale ?",
+      "answer_segments": [
+        "Je définis des priorités claires et analyse le marché.",
+        "Je structure mes actions en phases pour maximiser l’impact et la conversion."
+      ]
+    },
+    {
+      "question": "De quelle négociation êtes-vous le plus fier ?",
+      "answer_segments": [
+        "Lors de la mise en place d’un projet SAP, j’ai négocié la répartition des responsabilités entre équipes internes et partenaires externes.",
+        "Cela a garanti une livraison efficace et un engagement fort de toutes les parties."
+      ]
+    },
+    {
+      "question": "Quelle est la critique la plus constructive qu’on ait été amené à vous faire ?",
+      "answer_segments": [
+        "On m’a conseillé de déléguer davantage certaines tâches pour me concentrer sur la vision stratégique.",
+        "J’ai appliqué cette remarque en structurant mieux mes priorités et en responsabilisant mon équipe."
+      ]
+    },
+    {
+      "question": "Comment gérez-vous la critique ?",
+      "answer_segments": [
+        "J’accueille la critique comme une opportunité d’apprentissage.",
+        "J’analyse le fondement et ajuste mon approche si nécessaire.",
+        "Je reste ouvert et constructif."
+      ]
+    },
+    {
+      "question": "Etes-vous un leader ?",
+      "answer_segments": [
+        "Oui, je guide les équipes en clarifiant les objectifs.",
+        "Je facilite la communication et motive les collaborateurs à atteindre les résultats attendus."
+      ]
+    },
+    {
+      "question": "Etes-vous capable de travailler sous pression ?",
+      "answer_segments": [
+        "Oui, je priorise les tâches et reste concentré sur les objectifs.",
+        "Je maintiens une communication claire avec les parties prenantes."
+      ]
+    },
+    {
+      "question": "Si vous pouviez revenir dans le passé, feriez-vous différemment certaines choses ?",
+      "answer_segments": [
+        "Je continuerais à explorer plus tôt les technologies d’IA.",
+        "Je les appliquerais dans mes projets professionnels pour maximiser l’impact et l’efficacité."
+      ]
+    },
+    {
+      "question": "Qu’aimeriez-vous faire une fois en poste ?",
+      "answer_segments": [
+        "Contribuer à des projets intégrant IA et optimisation des processus.",
+        "Faciliter la prise de décision et promouvoir l’innovation tout en respectant les standards et la souveraineté des données."
+      ]
+    },
+    {
+      "question": "Comment comptez-vous entrer en interaction avec votre nouvel environnement de travail ?",
+      "answer_segments": [
+        "En m’immergeant rapidement dans les équipes.",
+        "En écoutant activement et en proposant des solutions adaptées aux besoins et contraintes de chacun."
+      ]
+    },
+    {
+      "question": "Qu'est-ce qui selon vous va vous poser des difficultés dans ce poste ?",
+      "answer_segments": [
+        "L’adaptation aux processus internes spécifiques et la gestion de contraintes réglementaires.",
+        "Je compte m’y familiariser rapidement grâce à mon expérience en administration publique."
+      ]
+    },
+    {
+      "question": "Qu’attendez-vous de votre manager ?",
+      "answer_segments": [
+        "Une vision claire.",
+        "Du feedback constructif.",
+        "Un accompagnement dans la réalisation des projets stratégiques."
+      ]
+    },
+    {
+      "question": "Quelles sont vos attentes concernant l’organisation de travail ?",
+      "answer_segments": [
+        "Un équilibre entre autonomie et collaboration.",
+        "Des outils et processus efficaces pour soutenir la performance et l’innovation."
+      ]
+    },
+    {
+      "question": "Quels sont vos axes d’amélioration ?",
+      "answer_segments": [
+        "Continuer à développer mes compétences en IA appliquée.",
+        "Approfondir mes connaissances dans la gestion de projets complexes multi-équipes."
+      ]
+    },
+    {
+      "question": "Quel regard portent sur vous vos collègues et amis ?",
+      "answer_segments": [
+        "On me perçoit comme curieux, fiable et orienté solutions.",
+        "Je suis capable de fédérer les équipes autour d’objectifs communs."
+      ]
+    },
+    {
+      "question": "Êtes-vous prêt à échouer ?",
+      "answer_segments": [
+        "Oui, l’échec est une opportunité d’apprentissage et de croissance.",
+        "Je l’analyse pour m’améliorer et progresser."
+      ]
+    },
+    {
+      "question": "Quels sont vos moteurs professionnels ?",
+      "answer_segments": [
+        "Apporter de la valeur.",
+        "Apprendre continuellement.",
+        "Résoudre des problèmes complexes.",
+        "Contribuer à l’innovation."
+      ]
+    },
+    {
+      "question": "Avec quelle philosophie abordez-vous votre travail ?",
+      "answer_segments": [
+        "Rigueur, pragmatisme et curiosité.",
+        "Collaboration et optimisation des processus sont au cœur de ma démarche."
+      ]
+    },
+    {
+      "question": "Où vous voyez-vous dans cinq ans ?",
+      "answer_segments": [
+        "Dans un rôle stratégique combinant gestion de projets, IA et transformation digitale.",
+        "Avec un impact significatif sur l’organisation."
+      ]
+    },
+    {
+      "question": "Comment souhaitez-vous construire votre carrière ?",
+      "answer_segments": [
+        "En développant des compétences techniques et stratégiques.",
+        "En explorant l’IA et en contribuant à des projets à fort impact."
+      ]
+    },
+    {
+      "question": "Quel est votre projet professionnel ?",
+      "answer_segments": [
+        "Devenir un expert combinant SAP, gestion de projet et IA.",
+        "Améliorer l’efficacité et l’innovation au sein des organisations."
+      ]
+    },
+    {
+      "question": "Quel est le poste idéal pour vous ?",
+      "answer_segments": [
+        "Un poste mêlant gestion de projet, business analysis et application de solutions innovantes en IA."
+      ]
+    },
+    {
+      "question": "Avez-vous développé des compétences extraprofessionnelles que vous souhaiteriez valoriser ?",
+      "answer_segments": [
+        "Oui, compétences en langues : anglais, allemand, japonais.",
+        "Compétences en IA et RAG via des projets personnels."
+      ]
+    },
+    {
+      "question": "Quel regard portez-vous sur votre métier, votre secteur d’activité, ses enjeux actuels ?",
+      "answer_segments": [
+        "Le secteur évolue rapidement avec la digitalisation et l’IA.",
+        "Il nécessite adaptation constante, rigueur dans les processus et capacité à innover."
+      ]
+    },
+    {
+      "question": "Quelles sont vos prétentions salariales ?",
+      "answer_segments": [
+        "Je suis ouvert à discussion selon responsabilités, impact du poste et standards du marché."
+      ]
+    },
+    {
+      "question": "Quelle est votre disponibilité ?",
+      "answer_segments": [
+        "Disponible immédiatement ou selon la période de préavis nécessaire."
+      ]
+    },
+    {
+      "question": "Quels sont vos hobbies ?",
+      "answer_segments": [
+        "Lecture.",
+        "Voyages.",
+        "Apprentissage des langues.",
+        "Exploration de projets personnels en IA et technologie."
+      ]
+    },
+    {
+      "question": "Avez-vous des questions ?",
+      "answer_segments": [
+        "Oui, j’aimerais en savoir plus sur vos projets d’IA à court et moyen terme.",
+        "Comment le poste contribue à ces initiatives."
+      ]
+    }
+  ]
+}
