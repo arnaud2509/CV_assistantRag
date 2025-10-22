@@ -18,7 +18,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate
 
 # --- ElevenLabs TTS ---
-from elevenlabs import generate, set_api_key, voices
+from elevenlabs import set_api_key, Voices, TTS
 
 # --------------------------------------------------------------------------
 # ------------------- 1. CONFIGURATION ET LOGIQUE RAG ----------------------
