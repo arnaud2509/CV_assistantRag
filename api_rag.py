@@ -211,7 +211,7 @@ async def ask_rag(query: Query):
         answer_text = qa_chain.run(query.question)
 
         audio_base64 = None
-                if ELEVEN_API_KEY:
+        if ELEVEN_API_KEY:
             try:
                 VOICE_ID = "JBFqnCBsd6RMkjVDRZzb"  # ID de la voix choisie
                 url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}"
