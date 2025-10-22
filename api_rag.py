@@ -17,29 +17,42 @@ from langchain.embeddings.base import Embeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate
 
-# --- ElevenLabs TTS ---
-from elevenlabs.client import ElevenLabs
+# --- Google Cloud TTS ---
+from google.cloud import texttospeech
 
 # --------------------------------------------------------------------------
 # ------------------- 1. CONFIGURATION ET LOGIQUE RAG ----------------------
 # --------------------------------------------------------------------------
 
-load_dotenv()  # Charge les variables d'environnement
+load_dotenv() # Charge les variables d'environnement
 
 # Clés API
 API_KEY: Optional[str] = os.environ.get("INFOMANIAK_API_KEY")
 PRODUCT_ID: Optional[str] = os.environ.get("INFOMANIAK_PRODUCT_ID")
 MODEL: str = os.environ.get("INFOMANIAK_EMBEDDING_MODEL", "mini_lm_l12_v2")
 GEMINI_API_KEY: Optional[str] = os.environ.get("GEMINI_API_KEY")
-ELEVEN_API_KEY: Optional[str] = os.environ.get("ELEVEN_API_KEY")
-
-elevenlabs = ElevenLabs(api_key=ELEVEN_API_KEY,)
-
+# ELEVEN_API_KEY a été supprimé
 
 # Chemins
 BASE_DIR = Path(__file__).resolve().parent
 CHROMA_PERSIST_DIRECTORY = BASE_DIR / "chroma_db"
 DATA_FILE = BASE_DIR / "cv_rag.json"
+
+# --- Configuration Google Cloud TTS ---
+tts_client: Optional[texttospeech.TextToSpeechClient] = None
+try:
+    # Google Cloud TTS est sensible aux credentials. L'initialisation ici
+    # suppose que l'authentification est gérée par l'environnement (ADC).
+    tts_client = texttospeech.TextToSpeechClient()
+    print("Client Google Cloud TTS initialisé.")
+except Exception as e:
+    tts_client = None
+    print(f"ATTENTION: Échec de l'initialisation du client Google Cloud TTS. (Vérifiez l'authentification gcloud). {e}")
+
+# Paramètres de la voix Google TTS (Français)
+TTS_VOICE_NAME = "fr-FR-Standard-C" 
+TTS_LANGUAGE_CODE = "fr-FR"
+TTS_AUDIO_ENCODING = texttospeech.AudioEncoding.MP3
 
 # Prompt personnalisé
 SYSTEM_PROMPT = """
@@ -135,6 +148,40 @@ def flatten_cv_json(cv_json: dict) -> List[Document]:
             docs.append(Document(page_content=text, metadata={"section": "faq"}))
     return docs
 
+# ----------------- Fonction Google Cloud TTS -----------------
+def generate_google_tts(text_to_speak: str) -> Optional[str]:
+    """Génère un fichier audio MP3 à partir du texte en utilisant Google Cloud TTS et retourne l'audio encodé en base64."""
+    if not tts_client:
+        print("[TTS] Client Google Cloud TTS non disponible.")
+        return None
+
+    synthesis_input = texttospeech.SynthesisInput(text=text_to_speak)
+
+    # Configuration de la voix
+    voice = texttospeech.VoiceSelectionParams(
+        language_code=TTS_LANGUAGE_CODE,
+        name=TTS_VOICE_NAME
+    )
+
+    # Configuration du type de fichier audio
+    audio_config = texttospeech.AudioConfig(
+        audio_encoding=TTS_AUDIO_ENCODING
+    )
+
+    try:
+        response = tts_client.synthesize_speech(
+            input=synthesis_input, voice=voice, audio_config=audio_config
+        )
+        
+        # L'objet `audio_content` contient le contenu audio binaire (MP3)
+        audio_base64 = base64.b64encode(response.audio_content).decode("utf-8")
+        print("[TTS] Audio Google Cloud généré ✅")
+        return audio_base64
+
+    except Exception as e:
+        print(f"[TTS] Erreur Google Cloud TTS: {e}")
+        return None
+
 # ----------------- Variables globales -----------------
 qa_chain: Optional[RetrievalQA] = None
 retriever_instance: Optional[Chroma] = None
@@ -211,33 +258,9 @@ async def ask_rag(query: Query):
         answer_text = qa_chain.run(query.question)
 
         audio_base64 = None
-        if ELEVEN_API_KEY:
-            try:
-                VOICE_ID = "JBFqnCBsd6RMkjVDRZzb"  # ID de la voix choisie
-                url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}"
-                headers = {
-                    "xi-api-key": ELEVEN_API_KEY,
-                    "Content-Type": "application/json"
-                }
-                payload = {
-                    "text": answer_text,
-                    "model_id": "eleven_multilingual_v2",
-                    "voice_settings": {"stability": 0.75, "similarity_boost": 0.75}
-                }
-                response = requests.post(url, headers=headers, json=payload)
-
-                #Logs render
-                print(f"[TTS] Status: {response.status_code}")
-                if response.status_code != 200:
-                    print(f"[TTS] Erreur response: {response.text[:500]}")
-
-                response.raise_for_status()
-                audio_base64 = base64.b64encode(response.content).decode("utf-8")
-                print("[TTS] Audio généré ✅")
-
-            except Exception as e:
-                print(f"[TTS] Erreur ElevenLabs: {e}")
-                audio_base64 = None
+        # Appel à la fonction Google Cloud TTS
+        if tts_client: 
+            audio_base64 = generate_google_tts(answer_text)
 
         return {
             "answer": answer_text,
