@@ -18,7 +18,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate
 
 # --- ElevenLabs TTS ---
-from elevenlabs import set_api_key, Voices, TTS
+from elevenlabs.client import ElevenLabs
 
 # --------------------------------------------------------------------------
 # ------------------- 1. CONFIGURATION ET LOGIQUE RAG ----------------------
@@ -33,8 +33,8 @@ MODEL: str = os.environ.get("INFOMANIAK_EMBEDDING_MODEL", "mini_lm_l12_v2")
 GEMINI_API_KEY: Optional[str] = os.environ.get("GEMINI_API_KEY")
 ELEVEN_API_KEY: Optional[str] = os.environ.get("ELEVEN_API_KEY")
 
-if ELEVEN_API_KEY:
-    set_api_key(ELEVEN_API_KEY)
+elevenlabs = ElevenLabs(api_key='ELEVEN_API_KEY',)
+
 
 # Chemins
 BASE_DIR = Path(__file__).resolve().parent
