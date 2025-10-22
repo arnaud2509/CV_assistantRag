@@ -15,3 +15,6 @@ chromadb
 python-dotenv
 requests
 pydantic
+
+# Speech
+google-cloud-texttospeech
