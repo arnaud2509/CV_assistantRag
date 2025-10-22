@@ -17,4 +17,4 @@ requests
 pydantic
 
 # Speech
-elevenlabs
+google-cloud-texttospeech
