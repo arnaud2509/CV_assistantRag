@@ -211,7 +211,7 @@ async def ask_rag(query: Query):
         answer_text = qa_chain.run(query.question)
 
         audio_base64 = None
-        if ELEVEN_API_KEY:
+                if ELEVEN_API_KEY:
             try:
                 VOICE_ID = "JBFqnCBsd6RMkjVDRZzb"  # ID de la voix choisie
                 url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}"
@@ -225,12 +225,18 @@ async def ask_rag(query: Query):
                     "voice_settings": {"stability": 0.75, "similarity_boost": 0.75}
                 }
                 response = requests.post(url, headers=headers, json=payload)
+
+                #Logs render
+                print(f"[TTS] Status: {response.status_code}")
+                if response.status_code != 200:
+                    print(f"[TTS] Erreur response: {response.text[:500]}")
+
                 response.raise_for_status()
                 audio_base64 = base64.b64encode(response.content).decode("utf-8")
-                print("TTS status code:", response.status_code)
-                print("TTS response text:", response.text[:500])  # tronque si c’est long
+                print("[TTS] Audio généré ✅")
+
             except Exception as e:
-                print(f"Erreur TTS ElevenLabs: {e}")
+                print(f"[TTS] Erreur ElevenLabs: {e}")
                 audio_base64 = None
 
         return {
