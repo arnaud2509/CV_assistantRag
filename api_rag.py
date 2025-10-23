@@ -66,7 +66,7 @@ else:
         print(f"ATTENTION: Échec du client TTS. {e}")
 
 # Paramètres voix Google TTS
-TTS_VOICE_NAME = "fr-FR-Standard-C"
+TTS_VOICE_NAME = "Zephyr"
 TTS_LANGUAGE_CODE = "fr-FR"
 TTS_AUDIO_ENCODING = texttospeech.AudioEncoding.MP3
 
