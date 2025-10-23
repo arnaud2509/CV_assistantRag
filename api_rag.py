@@ -6,10 +6,10 @@ from typing import List, Optional
 import os
 import json
 import base64
-import requests
+import re
 from dotenv import load_dotenv
 from pathlib import Path
-import re
+import asyncio
 
 # --- LangChain ---
 from langchain_community.vectorstores import Chroma
@@ -110,6 +110,7 @@ class InfomaniakEmbeddings(Embeddings):
         return self._embed_text(text)
 
     def _embed_text(self, text: str) -> List[float]:
+        import requests
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
@@ -166,19 +167,17 @@ def clean_text_for_tts(text: str) -> str:
 # ----------------- Fonction Google TTS -----------------
 def generate_google_tts(text_to_speak: str) -> Optional[str]:
     if not tts_client:
-        print("[TTS] Client Google Cloud TTS non disponible.")
         return None
     synthesis_input = texttospeech.SynthesisInput(text=text_to_speak)
-    voice = texttospeech.VoiceSelectionParams(language_code=TTS_LANGUAGE_CODE, name=TTS_VOICE_NAME, model_name="gemini-2.5-pro-tts")
+    voice = texttospeech.VoiceSelectionParams(
+        language_code=TTS_LANGUAGE_CODE,
+        name=TTS_VOICE_NAME,
+        model_name="gemini-2.5-pro-tts"
+    )
     audio_config = texttospeech.AudioConfig(audio_encoding=TTS_AUDIO_ENCODING)
-    try:
-        response = tts_client.synthesize_speech(input=synthesis_input, voice=voice, audio_config=audio_config)
-        audio_base64 = base64.b64encode(response.audio_content).decode("utf-8")
-        print("[TTS] Audio généré ✅")
-        return audio_base64
-    except Exception as e:
-        print(f"[TTS] Erreur TTS: {e}")
-        return None
+    response = tts_client.synthesize_speech(input=synthesis_input, voice=voice, audio_config=audio_config)
+    audio_base64 = base64.b64encode(response.audio_content).decode("utf-8")
+    return audio_base64
 
 # ----------------- Initialisation RAG -----------------
 qa_chain: Optional[RetrievalQA] = None
@@ -201,21 +200,17 @@ def load_documents_and_setup_rag() -> RetrievalQA:
         with DATA_FILE.open(encoding="utf-8") as f:
             data_raw = json.load(f)
         documents = flatten_cv_json(data_raw)
-        if not documents:
-            raise ValueError("Aucun document valide dans le JSON")
         vectorstore = Chroma.from_documents(documents, embedding_function, persist_directory=str(CHROMA_PERSIST_DIRECTORY))
         print("Embeddings créés et persistés.")
     retriever_instance = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 3})
     llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.7, api_key=GEMINI_API_KEY)
-    qa_chain = RetrievalQA.from_chain_type(llm=llm, retriever=retriever_instance, chain_type="stuff", chain_type_kwargs={"prompt": CUSTOM_PROMPT})
+    qa_chain = RetrievalQA.from_chain_type(
+        llm=llm,
+        retriever=retriever_instance,
+        chain_type="stuff",
+        chain_type_kwargs={"prompt": CUSTOM_PROMPT}
+    )
     return qa_chain
-
-try:
-    load_documents_and_setup_rag()
-except Exception as e:
-    print(f"ERREUR INITIALISATION RAG: {e}")
-    qa_chain = None
-    retriever_instance = None
 
 # --------------------------------------------------------------------------
 # ---------------------------- 2. API FASTAPI ------------------------------
@@ -227,6 +222,12 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, 
 class Query(BaseModel):
     question: str
 
+@app.on_event("startup")
+async def startup_event():
+    global qa_chain
+    load_documents_and_setup_rag()
+    print("RAG préchargé ✅")
+
 @app.get("/")
 def read_root():
     status = "OK" if qa_chain else "ERREUR: RAG non initialisé"
@@ -234,15 +235,14 @@ def read_root():
 
 @app.post("/ask")
 async def ask_rag(query: Query):
-    if not qa_chain:
-        try:
-            load_documents_and_setup_rag()
-        except Exception:
-            raise HTTPException(status_code=503, detail="Service RAG indisponible après tentative de réinitialisation")
     try:
+        # 1. Génération réponse texte
         answer_text = qa_chain.run(query.question)
         answer_text = clean_text_for_tts(answer_text)
-        audio_base64 = generate_google_tts(answer_text) if tts_client else None
+
+        # 2. TTS en parallèle
+        audio_base64 = await asyncio.to_thread(generate_google_tts, answer_text) if tts_client else None
+
         return {"answer": answer_text, "audio_base64": audio_base64}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -260,4 +260,4 @@ async def get_context(query: Query):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000, workers=4)
