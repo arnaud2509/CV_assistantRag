@@ -169,7 +169,7 @@ def generate_google_tts(text_to_speak: str) -> Optional[str]:
         print("[TTS] Client Google Cloud TTS non disponible.")
         return None
     synthesis_input = texttospeech.SynthesisInput(text=text_to_speak)
-    voice = texttospeech.VoiceSelectionParams(language_code=TTS_LANGUAGE_CODE, name=TTS_VOICE_NAME)
+    voice = texttospeech.VoiceSelectionParams(language_code=TTS_LANGUAGE_CODE, name=TTS_VOICE_NAME, model_name="gemini-2.5-pro-tts")
     audio_config = texttospeech.AudioConfig(audio_encoding=TTS_AUDIO_ENCODING)
     try:
         response = tts_client.synthesize_speech(input=synthesis_input, voice=voice, audio_config=audio_config)
