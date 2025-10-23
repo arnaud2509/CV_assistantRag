@@ -48,7 +48,7 @@ except Exception as e:
     print(f"ATTENTION: Échec de l'initialisation du client Google Cloud TTS. (Vérifiez l'authentification gcloud). {e}")
 
 # Paramètres de la voix Google TTS (Français)
-TTS_VOICE_NAME = "fr-FR-Standard-C" 
+TTS_VOICE_NAME = "Zephyr" 
 TTS_LANGUAGE_CODE = "fr-FR"
 TTS_AUDIO_ENCODING = texttospeech.AudioEncoding.MP3
 
