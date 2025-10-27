@@ -1,0 +1,142 @@
+{
+  "type": "user_profile_rag",
+  "meta": {
+    "source": "self_profile",
+    "last_updated": "2025-10-21",
+    "tags": [
+      "profil_professionnel",
+      "experiences",
+      "competences",
+      "technologies",
+      "soft_skills",
+      "IA",
+      "RAG",
+      "vision",
+      "FAQ"
+    ],
+    "context_sufficiency": "complet pour RAG",
+    "confidence_level": "high"
+  },
+  "contact": {
+    "name": "Arnaud Claivaz",
+    "phone": "+41 77 266 94 22",
+    "email": "claivaz.arnaud25@gmail.com",
+    "address": "Route des communaux 31, 1800 Vevey"
+  },
+  "profile": {
+    "resume": "Business Analyst spécialisé en SAP et finances publiques, avec expérience internationale à New York en gestion de produit et conseil marketing. Expérimenté dans la gestion de projets informatiques et SAP, avec un accent sur l'optimisation des processus et la coordination inter-équipes.",
+    "strategic_skills": "Allie expertise technique et vision stratégique pour gérer des projets, améliorer les processus et générer de la valeur. Intéressé par l'application de concepts d'IA pour renforcer la prise de décision et l'automatisation des projets.",
+    "values": ["curiosité", "innovation", "apprentissage continu", "indépendance", "efficacité"]
+  },
+  "education": [
+    {
+      "institution": "KUDAN INSTITUTE",
+      "description": "École de langue japonaise",
+      "date_start": "2024-01",
+      "date_end": "2024-12"
+    },
+    {
+      "institution": "BACHELOR HEG",
+      "description": "International Business Management",
+      "date_start": "2019-09",
+      "date_end": "2022-06"
+    },
+    {
+      "institution": "KONKUK UNIVERSITY",
+      "description": "Programme d'échange étudiant",
+      "date_start": "2023-01",
+      "date_end": "2023-12"
+    }
+  ],
+  "experiences": [
+    {
+      "role": "Business Analyst",
+      "organization": "Administration des Finances Valais",
+      "date_start": "2024-01",
+      "date_end": "2025-12",
+      "description": "Gestion des besoins métiers et traduction en spécifications fonctionnelles pour les projets financiers. Coordination des implémentations SAP, suivi de l’avancement des projets et alignement avec les objectifs stratégiques.",
+      "competences_associees": ["SAP", "Business Analysis", "Project Management"],
+      "impact": "Optimisation des processus financiers et amélioration de la coordination entre équipes."
+    },
+    {
+      "role": "SAP Project Management",
+      "organization": "Administration cantonale valaisanne",
+      "description": "Supervision de projets SAP, coordination entre équipes techniques, métiers et partenaires externes pour assurer la livraison dans les délais.",
+      "competences_associees": ["SAP", "Project Management"]
+    },
+    {
+      "role": "Change Management & Support",
+      "description": "Accompagnement au changement et formation des utilisateurs pour assurer l’adoption fluide des solutions SAP.",
+      "competences_associees": ["Change Management", "Training", "User Support"]
+    },
+    {
+      "role": "Sales Business Development",
+      "organization": "Professionals.Aero",
+      "date_start": "2022-01",
+      "date_end": "2023-12",
+      "description": "Identification de nouvelles opportunités d’affaires, gestion de la relation client et soutien au développement produit et aux stratégies marketing.",
+      "competences_associees": ["Business Development", "Marketing"]
+    },
+    {
+      "role": "Product Management Consultant",
+      "organization": "New York Habitat",
+      "date_start": "2018-01",
+      "date_end": "2020-12",
+      "description": "Gestion de produit, stratégie marketing et communication digitale en tant que consultant indépendant.",
+      "competences_associees": ["Product Management", "Marketing"]
+    }
+  ],
+  "competences": {
+    "technical": ["SAP", "Python", "SQL", "Excel", "Power BI", "Jira", "Confluence", "Agile/Scrum"],
+    "business": ["Business Analysis", "Optimisation des processus", "Gestion de projet", "Stratégie marketing", "Développement commercial", "Étude de marché"],
+    "IA": ["LLM", "RAG", "embeddings", "API d'IA expérimentales"],
+    "soft_skills": ["curiosité", "orientation solutions", "communication", "collaboration inter-équipes", "apprentissage continu", "gestion du changement"]
+  },
+  "languages": [
+    {"langue": "Français", "niveau": "natif"},
+    {"langue": "Anglais", "niveau": "C1"},
+    {"langue": "Allemand", "niveau": "B2"},
+    {"langue": "Japonais", "niveau": "B1"}
+  ],
+  "vision": {
+    "objectives": "Appliquer l'IA pour améliorer l’efficacité, soutenir la prise de décision et introduire l’innovation tout en respectant l’éthique et la souveraineté des données."
+  },
+  "faq": [
+    {
+      "topic": "Motivation",
+      "content": "Motivé à contribuer à la stratégie d’IA de l’État du Valais, en appliquant mes compétences en gestion de projet et mon expérience personnelle avec l’IA pour soutenir des initiatives à fort impact."
+    },
+    {
+      "topic": "Expérience IA",
+      "content": "Projets personnels avec LLM, systèmes RAG et embeddings. Désireux d’appliquer ces connaissances à des projets professionnels."
+    },
+    {
+      "topic": "Présentation",
+      "content": "Je suis Arnaud Claivaz, Business Analyst spécialisé en SAP et finances publiques, avec une expérience internationale à New York et passion pour l’IA."
+    },
+    {
+      "topic": "Intérêt poste",
+      "content": "L’opportunité d’appliquer mes compétences en gestion de projet, SAP et IA, et de contribuer à des initiatives à fort impact."
+    },
+    {
+      "topic": "Soft skills & leadership",
+      "content": "Curiosité, orientation solutions, communication efficace, collaboration inter-équipes et capacité à gérer la pression."
+    },
+    {
+      "topic": "Hobbies & passions",
+      "content": "Lecture, voyages, apprentissage des langues, projets personnels en IA et technologie, sport."
+    },
+    {
+      "topic": "Poste Actuel / Job Actuel / Rôle Arnaud",
+      "content": "Mon poste actuel est Business Analyst à l'Administration des Finances du Valais. Je suis spécialisé dans la gestion de projets SAP, l'optimisation des processus financiers et l'intégration de l'IA pour la prise de décision."
+    },
+    {
+      "topic": "Forces / Points Forts",
+      "content": "Ma plus grande force est ma capacité à allier l'expertise technique (SAP/IA) et la vision stratégique** pour résoudre des problèmes complexes. Je suis reconnu pour mon orientation solution et ma communication claire."
+    },
+    {
+      "topic": "Faiblesses / Défauts / Améliorations",
+      "content": "Je peux parfois être trop perfectionniste, ce qui m'amène à passer trop de temps sur les détails. J'y travaille en utilisant des outils de gestion de projet et en me fixant des limites de temps claires."
+    }
+  ]
+}
