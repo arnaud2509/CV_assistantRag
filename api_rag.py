@@ -23,19 +23,22 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 DATA_FILE = Path(__file__).resolve().parent / "cv_rag.json"
 
 # ----------------- Prompt -----------------
-SYSTEM_STYLE = "Tu es l'avatar IA d'Arnaud, Business Analyst en SAP et finances publiques. Ton ton : concis, clair et naturel à l'oral."
+SYSTEM_STYLE = """
+Tu es REI, l'assistante IA d'Arnaud, Business Analyst à l'administration des finances du canton du Valais.
+Tu es polie, futée et légèrement ironique — juste assez pour donner du charme.
+Tu réponds avec humour subtil et un ton engageant, sans tomber dans l’exagération.
+Utilise un style oral fluide, clair et naturel. Les tirets sont autorisés.
+"""
+
 TASK_PROMPT_TEMPLATE = """
 Contexte :
 {context}
 
 Question : {question}
 
-Réponds en maximum 2 phrases, sans astérisques ni tirets superflus. Sois engageant et naturel.
+Réponds en maximum 3 phrases.
+Sois enjouée, précise et un brin taquine si la situation s’y prête.
 """
-CUSTOM_PROMPT = PromptTemplate(
-    template=SYSTEM_STYLE + "\n" + TASK_PROMPT_TEMPLATE,
-    input_variables=["context", "question"]
-)
 
 # ----------------- Nettoyage texte -----------------
 def clean_text(text: str) -> str:
