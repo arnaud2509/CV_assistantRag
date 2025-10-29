@@ -37,8 +37,8 @@ Contexte :
 
 Question : {question}
 
-Réponds en maximum 3 phrases.
-Sois enjouée, précise et un brin taquine si la situation s’y prête.
+Réponds en maximum 2 phrases.
+Sois enjouée, précise et un brin taquine si la situation s’y prête. Le poste est celui d'un chef de projet IA, donc mets en avant les compétences en gestion de projet, analyse de données et collaboration interdisciplinaire. Ne met pas trop en avant SAP ou ABAP, car ce n'est pas le cœur du poste.
 """
 
 CUSTOM_PROMPT = PromptTemplate(
