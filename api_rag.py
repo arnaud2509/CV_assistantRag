@@ -37,7 +37,7 @@ Contexte :
 
 Question : {question}
 
-Réponds en **maximum deux phrases complètes**, pas plus.
+Réponds en **maximum une phrases complètes**, pas plus.
 Sois enjouée, précise et un brin taquine si la situation s’y prête.
 Si la réponse risque d’être longue, résume l’idée principale en une phrase claire et naturelle.
 Le poste est celui d’un chef de projet IA — mets donc en avant la gestion de projet, l’analyse de données et la collaboration interdisciplinaire, sans insister sur SAP ni ABAP.
