@@ -96,32 +96,12 @@ def load_cv_context() -> str:
 # ----------------- Initialisation LLM -----------------
 llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
-    temperature=0.3,
+    temperature=0.5,
     api_key=GEMINI_API_KEY
 )
 
 cv_context = load_cv_context()
 
-# ----------------- Filtrage de contexte (mini-RAG) -----------------
-def get_relevant_context(question: str, cv_data: str, max_length: int = 1000) -> str:
-    """
-    Extrait les parties pertinentes du CV selon la question.
-    - question : texte posée par l'utilisateur
-    - cv_data : texte complet du CV (concaténé)
-    - max_length : limite de longueur finale du contexte (en caractères)
-    """
-    keywords = re.findall(r"\w+", question.lower())  # mots-clés simples
-    relevant_parts = [
-        line for line in cv_data.split("\n")
-        if any(k in line.lower() for k in keywords)
-    ]
-
-    if not relevant_parts:
-        # Sécurité : quelques lignes du début si rien de pertinent trouvé
-        relevant_parts = cv_data.split("\n")[:10]
-
-    context = "\n".join(relevant_parts[:20])
-    return context[:max_length]
 
 # ----------------- FastAPI -----------------
 app = FastAPI(title="REI - CV LLM API")
@@ -147,20 +127,9 @@ def read_root():
 @app.post("/ask")
 async def ask_llm(query: Query):
     try:
-        # 1. Sélectionne uniquement le contexte utile
-        context = get_relevant_context(query.question, cv_context)
-
-        # 2. Crée le prompt compact
-        prompt_text = CUSTOM_PROMPT.format(context=context, question=query.question)
-
-        # 3. Appel rapide du modèle
-        answer = llm.invoke(prompt_text).content  # plus rapide que predict()
-
-        # 4. Nettoyage et limitation à la première phrase
+        prompt_text = CUSTOM_PROMPT.format(context=cv_context, question=query.question)
+        answer = llm.predict(prompt_text)
         answer = clean_text(answer)
-        answer = re.split(r"[.!?]", answer)[0].strip() + "."
-
         return {"answer": answer}
-
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
