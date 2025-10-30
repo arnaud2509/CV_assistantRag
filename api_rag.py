@@ -37,7 +37,7 @@ Contexte :
 
 Question : {question}
 
-Ta réponse doit être formulée à la **troisième personne**, comme si tu décrivais Arnaud à un recruteur.
+
 Mets l’accent sur la gestion de projet, l’analyse de données et la collaboration interdisciplinaire,
 sans insister sur SAP ni ABAP.
 Si la réponse pourrait être longue, résume l’idée principale de manière percutante.
@@ -95,7 +95,7 @@ def load_cv_context() -> str:
 # ----------------- Initialisation LLM -----------------
 llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
-    temperature=0.5,
+    temperature=0.8,
     api_key=GEMINI_API_KEY
 )
 
