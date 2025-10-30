@@ -37,8 +37,10 @@ Contexte :
 
 Question : {question}
 
-Réponds en maximum 2 phrases.
-Sois enjouée, précise et un brin taquine si la situation s’y prête. Le poste est celui d'un chef de projet IA, donc mets en avant les compétences en gestion de projet, analyse de données et collaboration interdisciplinaire. Ne met pas trop en avant SAP ou ABAP, car ce n'est pas le cœur du poste.
+Réponds en **maximum deux phrases complètes**, pas plus.
+Sois enjouée, précise et un brin taquine si la situation s’y prête.
+Si la réponse risque d’être longue, résume l’idée principale en une phrase claire et naturelle.
+Le poste est celui d’un chef de projet IA — mets donc en avant la gestion de projet, l’analyse de données et la collaboration interdisciplinaire, sans insister sur SAP ni ABAP.
 """
 
 CUSTOM_PROMPT = PromptTemplate(
@@ -93,7 +95,7 @@ def load_cv_context() -> str:
 # ----------------- Initialisation LLM -----------------
 llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
-    temperature=0.6,  # 🔥 un peu plus de créativité
+    temperature=0.5,
     api_key=GEMINI_API_KEY
 )
 
